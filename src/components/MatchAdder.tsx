@@ -27,6 +27,7 @@ export default function MatchAdder(props: MatchAdderProps) {
         points: Number.parseInt(score2),
       },
     ]);
+    alert("Match submitted please refresh")
   };
 
   return (
