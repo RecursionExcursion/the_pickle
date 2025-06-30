@@ -27,7 +27,6 @@ export default function MatchAdder(props: MatchAdderProps) {
         points: Number.parseInt(score2),
       },
     ]);
-    window.location.reload();
   };
 
   return (

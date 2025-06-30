@@ -6,8 +6,6 @@ export default async function Home() {
   const players = await getPlayers();
   const matches = await getMatches();
 
-  console.log(players, matches);
-
   if (!players || !matches) {
     return <>Server is waking up please try again in a moment</>;
   }
