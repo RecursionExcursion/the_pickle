@@ -44,3 +44,19 @@ export async function addMatch(score: Score[]) {
     body: JSON.stringify(payload),
   });
 }
+export async function removeMatch(matchId: string) {
+  const payload = {
+    id: matchId,
+  };
+
+  const res =await fetch(pickleRoute + "/match", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  console.log({res});
+  
+}
