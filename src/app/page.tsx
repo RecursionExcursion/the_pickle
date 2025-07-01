@@ -14,9 +14,6 @@ type View = "home" | "add" | "head" | "players" | "manage";
 export default function Home() {
   const [p, setP] = useState<Player[]>();
   const [m, setM] = useState<Match[]>();
-  // const [view, setView] = useState<React.ReactNode>(
-  //   <div className="flex justify-center items-center">The PICKLE</div>
-  // );
   const [view, setView] = useState<View>("home");
 
   useEffect(() => {

@@ -62,7 +62,8 @@ export default function MatchList(props: MatchListProps) {
         <div>
           {worstMatch && (
             <div>
-              A Dogwalking: <MatchView m={worstMatch} p1={player1} p2={player2} />
+              A Dogwalking:{" "}
+              <MatchView m={worstMatch} p1={player1} p2={player2} />
             </div>
           )}
         </div>
@@ -87,20 +88,45 @@ type MatchViewProps = {
 
 function MatchView(props: MatchViewProps) {
   const { m, p1, p2 } = props;
+
+  const player1 = getPlayerData(p1, m);
+  const player2 = getPlayerData(p2, m);
+
   return (
     <div className="border border-white p-2">
       <div className="flex gap-10 justify-center">
         <span>{new Date(m.date).toLocaleDateString()}</span>
-        <span>
-          {getPlayerName(m.score[0].id, p1, p2)}-{m.score[0].points}
+        <span
+          className={`${
+            (player1?.points ?? 0) > (player2?.points ?? 0) && "text-yellow-300"
+          }`}
+        >
+          {getPlayerName(p1.id, p1, p2)}-{player1?.points}
         </span>
-        <span>
-          {getPlayerName(m.score[1].id, p1, p2)}-{m.score[1].points}
+        <span
+          className={`${
+            (player1?.points ?? 0) < (player2?.points ?? 0) && "text-yellow-300"
+          }`}
+        >
+          {getPlayerName(p2.id, p1, p2)}-{player2?.points}
         </span>
       </div>
     </div>
   );
 }
+
+function getPlayerData(p: Player, m: Match) {
+  const [a, b] = m.score;
+
+  if (a.id === p.id) {
+    return a;
+  }
+
+  if (b.id === p.id) {
+    return b;
+  }
+}
+
 function getPlayerName(pId: string, p1: Player, p2: Player) {
   if (pId === p1.id) {
     return p1.name;
