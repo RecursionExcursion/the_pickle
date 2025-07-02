@@ -13,21 +13,40 @@ type HeadToHeadProps = {
 export default function HeadToHead(props: HeadToHeadProps) {
   const { players, matches } = props;
 
-  const [player1Id, setPlayer1Id] = useState(players[0].id);
-  const [player2Id, setPlayer2Id] = useState(players[1].id);
+  const [player1Id, setPlayer1Id] = useState<string>();
+  const [player2Id, setPlayer2Id] = useState<string>();
 
   const [player1, setPlayer1] = useState<Player>();
   const [player2, setPlayer2] = useState<Player>();
 
   useEffect(() => {
+    const lsId1 = localStorage.getItem("h2h1");
+    const lsId2 = localStorage.getItem("h2h2");
+
+    if (lsId1) {
+      const p1 = players.find((p) => p.id === lsId1);
+      setPlayer1(p1);
+      setPlayer1Id(lsId1);
+    }
+
+    if (lsId2) {
+      const p2 = players.find((p) => p.id === lsId2);
+      setPlayer2(p2);
+      setPlayer2Id(lsId2);
+    }
+  }, []);
+
+  useEffect(() => {
     if (player1Id) {
       const p1 = players.find((p) => p.id === player1Id);
       setPlayer1(p1 ?? undefined);
+      localStorage.setItem("h2h1", player1Id);
     }
 
     if (player2Id) {
       const p2 = players.find((p) => p.id === player2Id);
       setPlayer2(p2 ?? undefined);
+      localStorage.setItem("h2h2", player2Id);
     }
   }, [player1Id, player2Id, players]);
 
