@@ -34,7 +34,7 @@ export default function HeadToHead(props: HeadToHeadProps) {
       setPlayer2(p2);
       setPlayer2Id(lsId2);
     }
-  }, []);
+  }, [players]);
 
   useEffect(() => {
     if (player1Id) {
