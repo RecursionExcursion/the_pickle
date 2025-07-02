@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Player } from "../service/types";
 import { addMatch } from "../service/pickleService";
 import { emitter } from "../lib/eventEmiter";
@@ -14,12 +14,34 @@ type MatchAdderProps = {
 export default function MatchAdder(props: MatchAdderProps) {
   const { players } = props;
 
-  const [player1, setPlayer1] = useState("");
+  const [player1, setPlayer1] = useState<string>();
   const [score1, setScore1] = useState("0");
-  const [player2, setPlayer2] = useState("");
+  const [player2, setPlayer2] = useState<string>();
   const [score2, setScore2] = useState("0");
 
+  useEffect(() => {
+    const lsId1 = localStorage.getItem("ma1");
+    const lsId2 = localStorage.getItem("ma2");
+
+    if (lsId1) {
+      // const p1 = players.find((p) => p.id === lsId1);
+      setPlayer1(lsId1);
+    }
+
+    if (lsId2) {
+      // const p2 = players.find((p) => p.id === lsId2);
+      setPlayer2(lsId2);
+    }
+  }, []);
+
   const handleSubmit = async () => {
+    if (!player1 || !player2) {
+      return;
+    }
+
+    localStorage.setItem("ma1", player1)
+    localStorage.setItem("ma2", player2)
+
     await addMatch([
       {
         id: player1,
@@ -31,12 +53,12 @@ export default function MatchAdder(props: MatchAdderProps) {
       },
     ]);
     emitter.emit("update");
-    alert("Match Submitted")
+    alert("Match Submitted");
 
     //reset inputs
-    setPlayer1("");
+    // setPlayer1("");
     setScore1("0");
-    setPlayer2("");
+    // setPlayer2("");
     setScore2("0");
   };
 
@@ -58,24 +80,6 @@ export default function MatchAdder(props: MatchAdderProps) {
         setS={setScore2}
         players={players}
       />
-      {/* <div className="flex flex-col gap-3">
-        <PlayerSelect
-          title="Player 1"
-          playerName={player1}
-          setPlayerName={setPlayer1}
-          playerList={players}
-        />
-        <ScoreInput score={score1} setScore={setScore1} />
-      </div> */}
-      {/* <div className="flex flex-col gap-3">
-        <PlayerSelect
-          title="Player 2"
-          playerName={player2}
-          setPlayerName={setPlayer2}
-          playerList={players}
-        />
-        <ScoreInput score={score2} setScore={setScore2} />
-      </div> */}
       <button className="border border-white" onClick={handleSubmit}>
         Submit
       </button>
@@ -85,7 +89,7 @@ export default function MatchAdder(props: MatchAdderProps) {
 
 type MatchStatsInputProps = {
   title: string;
-  p: string;
+  p: string | undefined;
   setP: (s: string) => void;
   s: string;
   setS: (s: string) => void;

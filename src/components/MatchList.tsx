@@ -12,6 +12,8 @@ type MatchListProps = {
 export default function MatchList(props: MatchListProps) {
   const { player1, player2, matches } = props;
 
+  const [p1Wins, setP1Wins] = useState(0);
+  const [p2Wins, setP2Wins] = useState(0);
   const [bestMatch, setBestMatch] = useState<Match>();
   const [worstMatch, setWorstMatch] = useState<Match>();
   const [sharedMatches, setSharedMatches] = useState<Match[]>([]);
@@ -19,6 +21,8 @@ export default function MatchList(props: MatchListProps) {
   useEffect(() => {
     setBestMatch(undefined);
     setWorstMatch(undefined);
+    setP1Wins(0)
+    setP2Wins(0)
 
     let bestPointDiff = Number.MAX_SAFE_INTEGER;
     let worstPointDiff = Number.MIN_SAFE_INTEGER;
@@ -32,8 +36,17 @@ export default function MatchList(props: MatchListProps) {
 
     releventMatches.forEach((m) => {
       const [a, b] = m.score;
-      const scoreDiff = Math.abs(a.points - b.points);
 
+      const p1Points = a.id === player1.id ? a.points : b.points;
+      const p2Points = a.id === player2.id ? a.points : b.points;
+
+      if (p1Points > p2Points) {
+        setP1Wins((prev) => prev + 1);
+      } else {
+        setP2Wins((prev) => prev + 1);
+      }
+
+      const scoreDiff = Math.abs(a.points - b.points);
       if (scoreDiff < bestPointDiff) {
         bestPointDiff = scoreDiff;
         setBestMatch(m);
@@ -50,6 +63,10 @@ export default function MatchList(props: MatchListProps) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex justify-around text-5xl">
+        <span>{p1Wins}</span>
+        <span>{p2Wins}</span>
+      </div>
       <div className="flex flex-col gap-2">
         <div>
           {bestMatch && (
@@ -69,7 +86,7 @@ export default function MatchList(props: MatchListProps) {
         </div>
       </div>
       <div className="flex flex-col justify-center items-center">
-        <h3>Matches</h3>
+        <h3>All Matches</h3>
         <div>
           {sharedMatches.map((sm) => (
             <MatchView key={sm.id} m={sm} p1={player1} p2={player2} />

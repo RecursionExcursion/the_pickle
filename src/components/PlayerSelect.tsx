@@ -4,7 +4,7 @@ import { Player } from "../service/types";
 
 type PlayerSelectProps = {
   title?: string;
-  playerName: string;
+  playerName: string | undefined;
   setPlayerName: (S: string) => void;
   playerList: Player[];
 };
@@ -12,8 +12,8 @@ type PlayerSelectProps = {
 export function PlayerSelect(props: PlayerSelectProps) {
   const { title, playerName, setPlayerName, playerList } = props;
   return (
-    <div className="flex gap-3">
-      {title ?? <span>{title}</span>}
+    <div className="flex">
+      {title && <span className="pr-3">{title}</span>}
       <select
         className="bg-white text-black px-2 py-1"
         value={playerName}
