@@ -31,6 +31,7 @@ export default function MatchAdder(props: MatchAdderProps) {
       },
     ]);
     emitter.emit("update");
+    alert("Match Submitted")
 
     //reset inputs
     setPlayer1("");
@@ -41,7 +42,23 @@ export default function MatchAdder(props: MatchAdderProps) {
 
   return (
     <div className="flex flex-col justify-center gap-5">
-      <div className="flex gap-3">
+      <MatchStatsInput
+        title="Player 1"
+        p={player1}
+        setP={setPlayer1}
+        s={score1}
+        setS={setScore1}
+        players={players}
+      />
+      <MatchStatsInput
+        title="Player 2"
+        p={player2}
+        setP={setPlayer2}
+        s={score2}
+        setS={setScore2}
+        players={players}
+      />
+      {/* <div className="flex flex-col gap-3">
         <PlayerSelect
           title="Player 1"
           playerName={player1}
@@ -49,8 +66,8 @@ export default function MatchAdder(props: MatchAdderProps) {
           playerList={players}
         />
         <ScoreInput score={score1} setScore={setScore1} />
-      </div>
-      <div className="flex gap-3">
+      </div> */}
+      {/* <div className="flex flex-col gap-3">
         <PlayerSelect
           title="Player 2"
           playerName={player2}
@@ -58,10 +75,34 @@ export default function MatchAdder(props: MatchAdderProps) {
           playerList={players}
         />
         <ScoreInput score={score2} setScore={setScore2} />
-      </div>
+      </div> */}
       <button className="border border-white" onClick={handleSubmit}>
         Submit
       </button>
+    </div>
+  );
+}
+
+type MatchStatsInputProps = {
+  title: string;
+  p: string;
+  setP: (s: string) => void;
+  s: string;
+  setS: (s: string) => void;
+  players: Player[];
+};
+
+function MatchStatsInput(props: MatchStatsInputProps) {
+  const { title, p, setP, s, setS, players } = props;
+  return (
+    <div className="flex flex-col gap-3">
+      <PlayerSelect
+        title={title}
+        playerName={p}
+        setPlayerName={setP}
+        playerList={players}
+      />
+      <ScoreInput score={s} setScore={setS} />
     </div>
   );
 }
