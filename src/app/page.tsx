@@ -25,7 +25,7 @@ export default function Home() {
       getMatches().then((p) => setM(p));
     };
     emitter.on("update", contentListener);
-    // emitter.emit("update");
+    emitter.emit("update");
 
     const menuListener = (selection: View) => {
       setView(selection);
