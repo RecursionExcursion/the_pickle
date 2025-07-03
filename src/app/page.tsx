@@ -11,6 +11,7 @@ import MatchManager from "../components/MatchManager";
 import Logo from "../components/Logo";
 import BurgerMenu from "../components/BurgerMenu";
 import ServerNotice from "../components/ServerNotice";
+import { getToken } from "../service/localStorageService";
 
 export type View = "home" | "add" | "head" | "players" | "manage";
 
@@ -20,9 +21,11 @@ export default function Home() {
   const [view, setView] = useState<View>("home");
 
   useEffect(() => {
+    const token = getToken();
+
     const contentListener = () => {
-      getPlayers().then((p) => setP(p));
-      getMatches().then((p) => setM(p));
+      getPlayers(token).then((p) => setP(p));
+      getMatches(token).then((m) => setM(m));
     };
     emitter.on("update", contentListener);
     emitter.emit("update");
