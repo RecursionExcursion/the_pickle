@@ -6,6 +6,7 @@ import { addMatch } from "../service/pickleService";
 import { emitter } from "../lib/eventEmiter";
 import { PlayerSelect } from "./PlayerSelect";
 import { ScoreInput } from "./ScoreInput";
+import { getToken } from "../service/localStorageService";
 
 type MatchAdderProps = {
   players: Player[];
@@ -39,19 +40,22 @@ export default function MatchAdder(props: MatchAdderProps) {
       return;
     }
 
-    localStorage.setItem("ma1", player1)
-    localStorage.setItem("ma2", player2)
+    localStorage.setItem("ma1", player1);
+    localStorage.setItem("ma2", player2);
 
-    await addMatch([
-      {
-        id: player1,
-        points: Number.parseInt(score1),
-      },
-      {
-        id: player2,
-        points: Number.parseInt(score2),
-      },
-    ]);
+    await addMatch(
+      [
+        {
+          id: player1,
+          points: Number.parseInt(score1),
+        },
+        {
+          id: player2,
+          points: Number.parseInt(score2),
+        },
+      ],
+      getToken()
+    );
     emitter.emit("update");
     alert("Match Submitted");
 

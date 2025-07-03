@@ -1,6 +1,7 @@
 "use client";
 
 import { emitter } from "../lib/eventEmiter";
+import { getToken } from "../service/localStorageService";
 import { removeMatch } from "../service/pickleService";
 import { Match, Player } from "../service/types";
 import { trashCanIco } from "../svg/svg";
@@ -16,7 +17,7 @@ export default function MatchManager(props: MatchManagerProps) {
   async function handleDelete(id: string) {
     const ok = confirm("Are you sure you want to delete this match?");
     if (ok) {
-      await removeMatch(id);
+      await removeMatch(id, getToken());
       emitter.emit("update");
     }
   }
@@ -27,7 +28,10 @@ export default function MatchManager(props: MatchManagerProps) {
         const [a, b] = m.score;
 
         return (
-          <div key={m.id} className="flex justify-between border border-white p-2 px-4">
+          <div
+            key={m.id}
+            className="flex justify-between border border-white p-2 px-4"
+          >
             <span>{new Date(m.date).toLocaleDateString()}</span>
             <span className="flex gap-3">
               <span>
@@ -37,7 +41,12 @@ export default function MatchManager(props: MatchManagerProps) {
                 {getPlayer(b.id, players).name}-{b.points}
               </span>
             </span>
-            <button className="w-4 h-4 text-red-500 cursor-pointer" onClick={() => handleDelete(m.id)}>{trashCanIco}</button>
+            <button
+              className="w-4 h-4 text-red-500 cursor-pointer"
+              onClick={() => handleDelete(m.id)}
+            >
+              {trashCanIco}
+            </button>
           </div>
         );
       })}
