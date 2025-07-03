@@ -14,6 +14,9 @@ export default function MatchList(props: MatchListProps) {
 
   const [p1Wins, setP1Wins] = useState(0);
   const [p2Wins, setP2Wins] = useState(0);
+  const [p1Points, setP1Points] = useState(0);
+  const [p2Points, setP2Points] = useState(0);
+
   const [bestMatch, setBestMatch] = useState<Match>();
   const [worstMatch, setWorstMatch] = useState<Match>();
   const [sharedMatches, setSharedMatches] = useState<Match[]>([]);
@@ -21,8 +24,8 @@ export default function MatchList(props: MatchListProps) {
   useEffect(() => {
     setBestMatch(undefined);
     setWorstMatch(undefined);
-    setP1Wins(0)
-    setP2Wins(0)
+    setP1Wins(0);
+    setP2Wins(0);
 
     let bestPointDiff = Number.MAX_SAFE_INTEGER;
     let worstPointDiff = Number.MIN_SAFE_INTEGER;
@@ -46,6 +49,9 @@ export default function MatchList(props: MatchListProps) {
         setP2Wins((prev) => prev + 1);
       }
 
+      setP1Points((prev) => prev + p1Points);
+      setP2Points((prev) => prev + p2Points);
+
       const scoreDiff = Math.abs(a.points - b.points);
       if (scoreDiff < bestPointDiff) {
         bestPointDiff = scoreDiff;
@@ -66,6 +72,10 @@ export default function MatchList(props: MatchListProps) {
       <div className="flex justify-around text-5xl">
         <span>{p1Wins}</span>
         <span>{p2Wins}</span>
+      </div>
+      <div className="flex justify-around text-5xl">
+        <span>{`(${p1Points})`}</span>
+        <span>{`(${p2Points})`}</span>
       </div>
       <div className="flex flex-col gap-2">
         <div>
