@@ -4,8 +4,11 @@ import { useState } from "react";
 import { actualHamburgerIco } from "../svg/svg";
 import { View } from "../app/page";
 import { emitter } from "../lib/eventEmiter";
+import { deleteToken } from "../service/localStorageService";
+import { useRouter } from "next/navigation";
 
 export default function BurgerMenu() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   function selectMenuItem(view: View) {
@@ -49,6 +52,15 @@ export default function BurgerMenu() {
           </button>
           <button onClick={() => selectMenuItem("manage")} className="block">
             Manage Matches
+          </button>
+          <button
+            onClick={() => {
+              deleteToken();
+              router.push("/login");
+            }}
+            className="block"
+          >
+            Logout
           </button>
           <button
             onClick={() => {

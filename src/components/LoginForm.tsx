@@ -16,6 +16,9 @@ export default function LoginForm() {
       if (token) {
         saveToken(token);
         router.push("/");
+      } else {
+        //invalid creds / sever did not send back token
+        alert("Invalid username or password");
       }
     }
   }

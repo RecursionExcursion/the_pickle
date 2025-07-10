@@ -66,6 +66,11 @@ export default function MatchAdder(props: MatchAdderProps) {
     setScore2("0");
   };
 
+//TODO
+function handleViewH2H(){
+
+}
+  
   return (
     <div className="flex flex-col justify-center gap-5">
       <MatchStatsInput
@@ -86,6 +91,9 @@ export default function MatchAdder(props: MatchAdderProps) {
       />
       <button className="border border-white" onClick={handleSubmit}>
         Submit
+      </button>
+      <button className="border border-white" onClick={handleViewH2H}>
+        View H2H
       </button>
     </div>
   );

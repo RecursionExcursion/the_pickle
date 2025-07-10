@@ -24,6 +24,8 @@ export async function getPlayers(token: Token) {
   });
   if (res.ok) {
     return (await res.json()) as Player[];
+  } else {
+    redirectToLogin();
   }
 }
 
@@ -37,6 +39,8 @@ export async function getMatches(token: Token) {
   });
   if (res.ok) {
     return (await res.json()) as Match[];
+  } else {
+    redirectToLogin();
   }
 }
 
