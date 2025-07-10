@@ -6,14 +6,10 @@ import { addMatch } from "../service/pickleService";
 import { emitter } from "../lib/eventEmiter";
 import { PlayerSelect } from "./PlayerSelect";
 import { ScoreInput } from "./ScoreInput";
-import { getToken } from "../service/localStorageService";
+import { usePickleContext } from "../context/PickleContext";
 
-type MatchAdderProps = {
-  players: Player[];
-};
-
-export default function MatchAdder(props: MatchAdderProps) {
-  const { players } = props;
+export default function MatchAdder() {
+  const { players } = usePickleContext();
 
   const [player1, setPlayer1] = useState<string>();
   const [score1, setScore1] = useState("0");
@@ -43,19 +39,16 @@ export default function MatchAdder(props: MatchAdderProps) {
     localStorage.setItem("ma1", player1);
     localStorage.setItem("ma2", player2);
 
-    await addMatch(
-      [
-        {
-          id: player1,
-          points: Number.parseInt(score1),
-        },
-        {
-          id: player2,
-          points: Number.parseInt(score2),
-        },
-      ],
-      getToken()
-    );
+    await addMatch([
+      {
+        id: player1,
+        points: Number.parseInt(score1),
+      },
+      {
+        id: player2,
+        points: Number.parseInt(score2),
+      },
+    ]);
     emitter.emit("update");
     alert("Match Submitted");
 
@@ -66,11 +59,9 @@ export default function MatchAdder(props: MatchAdderProps) {
     setScore2("0");
   };
 
-//TODO
-function handleViewH2H(){
+  //TODO
+  function handleViewH2H() {}
 
-}
-  
   return (
     <div className="flex flex-col justify-center gap-5">
       <MatchStatsInput

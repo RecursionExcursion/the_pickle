@@ -1,23 +1,18 @@
 "use client";
 
+import { usePickleContext } from "../context/PickleContext";
 import { emitter } from "../lib/eventEmiter";
-import { getToken } from "../service/localStorageService";
 import { removeMatch } from "../service/pickleService";
-import { Match, Player } from "../service/types";
+import {  Player } from "../service/types";
 import { trashCanIco } from "../svg/svg";
 
-type MatchManagerProps = {
-  players: Player[];
-  matches: Match[];
-};
-
-export default function MatchManager(props: MatchManagerProps) {
-  const { matches, players } = props;
+export default function MatchManager() {
+  const { matches, players } = usePickleContext();
 
   async function handleDelete(id: string) {
     const ok = confirm("Are you sure you want to delete this match?");
     if (ok) {
-      await removeMatch(id, getToken());
+      await removeMatch(id);
       emitter.emit("update");
     }
   }

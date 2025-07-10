@@ -1,17 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Match, Player } from "../service/types";
+import { Player } from "../service/types";
 import { PlayerSelect } from "./PlayerSelect";
 import MatchList from "./MatchList";
+import { usePickleContext } from "../context/PickleContext";
 
-type HeadToHeadProps = {
-  players: Player[];
-  matches: Match[];
-};
-
-export default function HeadToHead(props: HeadToHeadProps) {
-  const { players, matches } = props;
+export default function HeadToHead() {
+  const { players, matches } = usePickleContext();
 
   const [player1Id, setPlayer1Id] = useState<string>();
   const [player2Id, setPlayer2Id] = useState<string>();

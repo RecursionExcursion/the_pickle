@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { login } from "../service/pickleService";
-import { saveToken } from "../service/localStorageService";
 import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
@@ -12,9 +11,8 @@ export default function LoginForm() {
 
   async function handleLogin() {
     if (password && username) {
-      const token = await login(username, password);
-      if (token) {
-        saveToken(token);
+      const ok = await login(username, password);
+      if (ok) {
         router.push("/");
       } else {
         //invalid creds / sever did not send back token
