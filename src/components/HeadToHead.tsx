@@ -5,32 +5,23 @@ import { Player } from "../service/types";
 import { PlayerSelect } from "./PlayerSelect";
 import MatchList from "./MatchList";
 import { usePickleContext } from "../context/PickleContext";
+import { useSearchParams } from "next/navigation";
+import LinkButton from "./LinkButton";
 
 export default function HeadToHead() {
   const { players, matches } = usePickleContext();
 
-  const [player1Id, setPlayer1Id] = useState<string>();
-  const [player2Id, setPlayer2Id] = useState<string>();
+  const searchParams = useSearchParams();
+
+  const [player1Id, setPlayer1Id] = useState<string | undefined>(() => {
+    return searchParams.get("p1") ?? localStorage.getItem("h2h1") ?? undefined;
+  });
+  const [player2Id, setPlayer2Id] = useState<string | undefined>(() => {
+    return searchParams.get("p2") ?? localStorage.getItem("h2h2") ?? undefined;
+  });
 
   const [player1, setPlayer1] = useState<Player>();
   const [player2, setPlayer2] = useState<Player>();
-
-  useEffect(() => {
-    const lsId1 = localStorage.getItem("h2h1");
-    const lsId2 = localStorage.getItem("h2h2");
-
-    if (lsId1) {
-      const p1 = players.find((p) => p.id === lsId1);
-      setPlayer1(p1);
-      setPlayer1Id(lsId1);
-    }
-
-    if (lsId2) {
-      const p2 = players.find((p) => p.id === lsId2);
-      setPlayer2(p2);
-      setPlayer2Id(lsId2);
-    }
-  }, [players]);
 
   useEffect(() => {
     if (player1Id) {
@@ -48,6 +39,9 @@ export default function HeadToHead() {
 
   return (
     <div className="flex flex-col gap-3 justify-center items-center">
+      <LinkButton href={`/addMatch?p1=${player1Id}&p2=${player2Id}`}>
+        Add Match
+      </LinkButton>
       <h2>Head To Head</h2>
       <div className="flex">
         <PlayerSelect
@@ -70,4 +64,3 @@ export default function HeadToHead() {
     </div>
   );
 }
-//TODO have LS hold last selected H2H

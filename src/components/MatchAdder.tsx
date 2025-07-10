@@ -7,13 +7,17 @@ import { emitter } from "../lib/eventEmiter";
 import { PlayerSelect } from "./PlayerSelect";
 import { ScoreInput } from "./ScoreInput";
 import { usePickleContext } from "../context/PickleContext";
+import { useSearchParams } from "next/navigation";
+import LinkButton from "./LinkButton";
 
 export default function MatchAdder() {
   const { players } = usePickleContext();
 
-  const [player1, setPlayer1] = useState<string>();
+  const searchParams = useSearchParams();
+
+  const [player1, setPlayer1] = useState<string | null>(searchParams.get("p1"));
   const [score1, setScore1] = useState("0");
-  const [player2, setPlayer2] = useState<string>();
+  const [player2, setPlayer2] = useState<string | null>(searchParams.get("p2"));
   const [score2, setScore2] = useState("0");
 
   useEffect(() => {
@@ -21,15 +25,19 @@ export default function MatchAdder() {
     const lsId2 = localStorage.getItem("ma2");
 
     if (lsId1) {
-      // const p1 = players.find((p) => p.id === lsId1);
-      setPlayer1(lsId1);
+      const p1 = players.find((p) => p.id === lsId1);
+      if (p1) {
+        setPlayer1(p1.id);
+      }
     }
 
     if (lsId2) {
-      // const p2 = players.find((p) => p.id === lsId2);
-      setPlayer2(lsId2);
+      const p2 = players.find((p) => p.id === lsId2);
+      if (p2) {
+        setPlayer2(p2.id);
+      }
     }
-  }, []);
+  }, [players]);
 
   const handleSubmit = async () => {
     if (!player1 || !player2) {
@@ -59,14 +67,11 @@ export default function MatchAdder() {
     setScore2("0");
   };
 
-  //TODO
-  function handleViewH2H() {}
-
   return (
     <div className="flex flex-col justify-center gap-5">
       <MatchStatsInput
         title="Player 1"
-        p={player1}
+        p={player1 ?? undefined}
         setP={setPlayer1}
         s={score1}
         setS={setScore1}
@@ -74,7 +79,7 @@ export default function MatchAdder() {
       />
       <MatchStatsInput
         title="Player 2"
-        p={player2}
+        p={player2 ?? undefined}
         setP={setPlayer2}
         s={score2}
         setS={setScore2}
@@ -83,9 +88,9 @@ export default function MatchAdder() {
       <button className="border border-white" onClick={handleSubmit}>
         Submit
       </button>
-      <button className="border border-white" onClick={handleViewH2H}>
+      <LinkButton href={`/h2h?p1=${player1}&p2=${player2}`}>
         View H2H
-      </button>
+      </LinkButton>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { Match, Player, Score } from "./types";
 import { revalidateTag } from "next/cache";
 import { getSessionCookie, setSessionCookie } from "./cookieService";
@@ -18,7 +17,7 @@ async function getToken() {
   }
 }
 
-const redirectToLogin = () => redirect("/login");
+const unauthorizedErrorMessage = "unauthorized";
 
 const playersCacheTag = "players";
 const matchesCacheTag = "matches";
@@ -34,7 +33,7 @@ export async function invalidateMatches() {
 export async function getPlayers() {
   const token = await getToken();
   if (!token) {
-    throw Error("unauthorized");
+    throw Error(unauthorizedErrorMessage);
   }
 
   const res = await fetch(pickleRoute + "/player", {
@@ -46,7 +45,7 @@ export async function getPlayers() {
   });
 
   if (res.status === 401) {
-    throw Error("unauthorized");
+    throw Error(unauthorizedErrorMessage);
   }
 
   if (!res.ok) {
@@ -59,7 +58,7 @@ export async function getPlayers() {
 export async function getMatches() {
   const token = await getToken();
   if (!token) {
-    throw Error("unauthorized");
+    throw Error(unauthorizedErrorMessage);
   }
 
   const res = await fetch(pickleRoute + "/match", {
@@ -70,11 +69,11 @@ export async function getMatches() {
   });
 
   if (res.status === 401) {
-    throw Error("unauthorized");
+    throw Error(unauthorizedErrorMessage);
   }
 
   if (!res.ok) {
-    throw Error("failed to fetch players");
+    throw Error("failed to fetch matches");
   }
 
   return (await res.json()) as Match[];
@@ -83,7 +82,7 @@ export async function getMatches() {
 export async function addMatch(score: Score[]) {
   const token = await getToken();
   if (!token) {
-    throw Error("unauthorized");
+    throw Error(unauthorizedErrorMessage);
   }
 
   const payload = {
@@ -100,7 +99,7 @@ export async function addMatch(score: Score[]) {
     ],
   };
 
-  await fetch(pickleRoute + "/match", {
+  const res = await fetch(pickleRoute + "/match", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -109,12 +108,24 @@ export async function addMatch(score: Score[]) {
     body: JSON.stringify(payload),
   });
 
-  await invalidateMatches();
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
+  }
+
+  if (!res.ok) {
+    throw Error("Something went wrong");
+  }
+
+  if (res.ok) {
+    await invalidateMatches();
+  }
 }
 
 export async function removeMatch(matchId: string): Promise<boolean> {
   const token = await getToken();
-  if (!token) redirectToLogin();
+  if (!token) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   const payload = {
     id: matchId,
@@ -128,6 +139,10 @@ export async function removeMatch(matchId: string): Promise<boolean> {
     },
     body: JSON.stringify(payload),
   });
+
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   return res.ok;
 }
@@ -146,10 +161,11 @@ export async function login(un: string, pw: string): Promise<boolean> {
     body: JSON.stringify(payload),
   });
 
-  if (res.ok) {
-    const token = await res.json();
-    await setSessionCookie(token);
-    return true;
+  if (!res.ok) {
+    return false;
   }
-  return false;
+
+  const token = await res.json();
+  await setSessionCookie(token);
+  return true;
 }
