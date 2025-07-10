@@ -38,7 +38,7 @@ export default function HeadToHead() {
   }, [player1Id, player2Id, players]);
 
   return (
-    <div className="flex flex-col gap-3 justify-center items-center">
+    <div className="flex flex-col gap-3 justify-center items-center pb-6">
       <LinkButton href={`/addMatch?p1=${player1Id}&p2=${player2Id}`}>
         Add Match
       </LinkButton>

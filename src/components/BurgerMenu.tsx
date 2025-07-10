@@ -5,6 +5,7 @@ import { actualHamburgerIco } from "../svg/svg";
 
 import Link from "next/link";
 import { RouteLink } from "../routes/routes";
+import { usePathname } from "next/navigation";
 
 type BurgerMenuProps = {
   links: RouteLink[];
@@ -13,6 +14,8 @@ type BurgerMenuProps = {
 export default function BurgerMenu(props: BurgerMenuProps) {
   const { links } = props;
   const [open, setOpen] = useState(false);
+
+  const pathname = usePathname();
 
   return (
     <div>
@@ -38,7 +41,15 @@ export default function BurgerMenu(props: BurgerMenuProps) {
         <nav className="p-4 space-y-4 flex flex-col">
           {links.map((l) => (
             <Link key={l.text + l.path} href={l.path}>
-              {l.text}
+              <span
+                onClick={() => {
+                  if (pathname === l.path) {
+                    setOpen(false);
+                  }
+                }}
+              >
+                {l.text}
+              </span>
             </Link>
           ))}
           <button

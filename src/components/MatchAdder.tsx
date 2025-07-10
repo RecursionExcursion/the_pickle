@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Player } from "../service/types";
 import { addMatch } from "../service/pickleService";
 import { emitter } from "../lib/eventEmiter";
@@ -15,29 +15,14 @@ export default function MatchAdder() {
 
   const searchParams = useSearchParams();
 
-  const [player1, setPlayer1] = useState<string | null>(searchParams.get("p1"));
+  const [player1, setPlayer1] = useState<string | undefined>(
+    () => searchParams.get("p1") ?? localStorage.getItem("ma1") ?? undefined
+  );
   const [score1, setScore1] = useState("0");
-  const [player2, setPlayer2] = useState<string | null>(searchParams.get("p2"));
+  const [player2, setPlayer2] = useState<string | undefined>(
+    () => searchParams.get("p2") ?? localStorage.getItem("ma2") ?? undefined
+  );
   const [score2, setScore2] = useState("0");
-
-  useEffect(() => {
-    const lsId1 = localStorage.getItem("ma1");
-    const lsId2 = localStorage.getItem("ma2");
-
-    if (lsId1) {
-      const p1 = players.find((p) => p.id === lsId1);
-      if (p1) {
-        setPlayer1(p1.id);
-      }
-    }
-
-    if (lsId2) {
-      const p2 = players.find((p) => p.id === lsId2);
-      if (p2) {
-        setPlayer2(p2.id);
-      }
-    }
-  }, [players]);
 
   const handleSubmit = async () => {
     if (!player1 || !player2) {
@@ -60,10 +45,9 @@ export default function MatchAdder() {
     emitter.emit("update");
     alert("Match Submitted");
 
-    //reset inputs
-    // setPlayer1("");
+    //reset scores
+    //leaev players
     setScore1("0");
-    // setPlayer2("");
     setScore2("0");
   };
 
@@ -71,7 +55,7 @@ export default function MatchAdder() {
     <div className="flex flex-col justify-center gap-5">
       <MatchStatsInput
         title="Player 1"
-        p={player1 ?? undefined}
+        p={player1}
         setP={setPlayer1}
         s={score1}
         setS={setScore1}
@@ -79,7 +63,7 @@ export default function MatchAdder() {
       />
       <MatchStatsInput
         title="Player 2"
-        p={player2 ?? undefined}
+        p={player2}
         setP={setPlayer2}
         s={score2}
         setS={setScore2}
