@@ -25,12 +25,12 @@ type PickleProviderProps = {
 
 export const PickleProvider = (props: PickleProviderProps) => {
   const router = useRouter();
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [players, setPlayers] = useState<Player[]>();
+  const [matches, setMatches] = useState<Match[]>();
 
   useEffect(() => {
     updateContent();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function updateContent() {
@@ -48,6 +48,10 @@ export const PickleProvider = (props: PickleProviderProps) => {
         }
       }
     }
+  }
+
+  if (!players || !matches) {
+    return null;
   }
 
   return (
