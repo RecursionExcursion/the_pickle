@@ -3,20 +3,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Match, Player } from "../service/types";
 import BurgerMenu from "../components/BurgerMenu";
-import { getMatches, getPlayers } from "../service/pickleService";
+import {
+  getMatches,
+  getPlayers,
+  invalidateMatches,
+  invalidatePlayers,
+} from "../service/pickleService";
 import { routeLinks } from "../routes/routes";
 import { useRouter } from "next/navigation";
 
 type PickleContextState = {
   players: Player[];
   matches: Match[];
-  updateContent: () => void;
+  updateContent: () => Promise<void>;
 };
 
 export const PickleContext = createContext<PickleContextState>({
   players: [],
   matches: [],
-  updateContent: () => {},
+  updateContent: async () => {},
 });
 
 type PickleProviderProps = {
@@ -50,6 +55,12 @@ export const PickleProvider = (props: PickleProviderProps) => {
     }
   }
 
+  async function invalidateAndUpdateContent() {
+    await invalidatePlayers();
+    await invalidateMatches();
+    await updateContent();
+  }
+
   if (!players || !matches) {
     return null;
   }
@@ -59,7 +70,7 @@ export const PickleProvider = (props: PickleProviderProps) => {
       value={{
         players: players,
         matches: matches,
-        updateContent: updateContent,
+        updateContent: invalidateAndUpdateContent,
       }}
     >
       <div className="flex flex-col gap-5 p-4 h-screen">

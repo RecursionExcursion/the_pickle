@@ -79,7 +79,7 @@ export async function getMatches() {
   return (await res.json()) as Match[];
 }
 
-export async function addMatch(score: Score[]) {
+export async function addMatch(score: Score[]): Promise<boolean> {
   const token = await getToken();
   if (!token) {
     throw Error(unauthorizedErrorMessage);
@@ -112,13 +112,7 @@ export async function addMatch(score: Score[]) {
     throw Error(unauthorizedErrorMessage);
   }
 
-  if (!res.ok) {
-    throw Error("Something went wrong");
-  }
-
-  if (res.ok) {
-    await invalidateMatches();
-  }
+  return res.ok;
 }
 
 export async function removeMatch(matchId: string): Promise<boolean> {
