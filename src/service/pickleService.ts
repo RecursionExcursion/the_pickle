@@ -4,6 +4,11 @@ import { Match, Player, Score } from "./types";
 import { revalidateTag } from "next/cache";
 import { getSessionCookie, setSessionCookie } from "./cookieService";
 
+type ServiceResponse<T> = {
+  status: number;
+  payload: T;
+};
+
 const pickleRoute = process.env.PICKLE_API;
 
 if (!pickleRoute) {
@@ -30,10 +35,13 @@ export async function invalidateMatches() {
   revalidateTag(matchesCacheTag);
 }
 
-export async function getPlayers() {
+export async function getPlayers(): Promise<ServiceResponse<Player[]>> {
   const token = await getToken();
   if (!token) {
-    throw Error(unauthorizedErrorMessage);
+    return {
+      status: 401,
+      payload: [],
+    };
   }
 
   const res = await fetch(pickleRoute + "/player", {
@@ -44,21 +52,19 @@ export async function getPlayers() {
     },
   });
 
-  if (res.status === 401) {
-    throw Error(unauthorizedErrorMessage);
-  }
-
-  if (!res.ok) {
-    throw Error("failed to fetch players");
-  }
-
-  return (await res.json()) as Player[];
+  return {
+    status: res.status,
+    payload: (await res.json()) as Player[],
+  };
 }
 
-export async function getMatches() {
+export async function getMatches(): Promise<ServiceResponse<Match[]>> {
   const token = await getToken();
   if (!token) {
-    throw Error(unauthorizedErrorMessage);
+    return {
+      status: 401,
+      payload: [],
+    };
   }
 
   const res = await fetch(pickleRoute + "/match", {
@@ -68,21 +74,21 @@ export async function getMatches() {
     },
   });
 
-  if (res.status === 401) {
-    throw Error(unauthorizedErrorMessage);
-  }
-
-  if (!res.ok) {
-    throw Error("failed to fetch matches");
-  }
-
-  return (await res.json()) as Match[];
+  return {
+    status: res.status,
+    payload: (await res.json()) as Match[],
+  };
 }
 
-export async function addMatch(score: Score[]): Promise<boolean> {
+export async function addMatch(
+  score: Score[]
+): Promise<ServiceResponse<boolean>> {
   const token = await getToken();
   if (!token) {
-    throw Error(unauthorizedErrorMessage);
+    return {
+      status: 401,
+      payload: false,
+    };
   }
 
   const payload = {
@@ -108,17 +114,21 @@ export async function addMatch(score: Score[]): Promise<boolean> {
     body: JSON.stringify(payload),
   });
 
-  if (res.status === 401) {
-    throw Error(unauthorizedErrorMessage);
-  }
-
-  return res.ok;
+  return {
+    status: res.status,
+    payload: res.ok,
+  };
 }
 
-export async function removeMatch(matchId: string): Promise<boolean> {
+export async function removeMatch(
+  matchId: string
+): Promise<ServiceResponse<boolean>> {
   const token = await getToken();
   if (!token) {
-    throw Error(unauthorizedErrorMessage);
+    return {
+      status: 401,
+      payload: false,
+    };
   }
 
   const payload = {
@@ -138,7 +148,10 @@ export async function removeMatch(matchId: string): Promise<boolean> {
     throw Error(unauthorizedErrorMessage);
   }
 
-  return res.ok;
+  return {
+    status: res.status,
+    payload: res.ok,
+  };
 }
 
 export async function login(un: string, pw: string): Promise<boolean> {
