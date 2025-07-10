@@ -3,15 +3,16 @@
 import { useState } from "react";
 import { Player } from "../service/types";
 import { addMatch } from "../service/pickleService";
-import { emitter } from "../lib/eventEmiter";
 import { PlayerSelect } from "./PlayerSelect";
 import { ScoreInput } from "./ScoreInput";
 import { usePickleContext } from "../context/PickleContext";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LinkButton from "./LinkButton";
 
 export default function MatchAdder() {
-  const { players } = usePickleContext();
+  const { players, updateContent } = usePickleContext();
+
+  const router = useRouter();
 
   const searchParams = useSearchParams();
 
@@ -31,22 +32,33 @@ export default function MatchAdder() {
 
     localStorage.setItem("ma1", player1);
     localStorage.setItem("ma2", player2);
-
-    await addMatch([
-      {
-        id: player1,
-        points: Number.parseInt(score1),
-      },
-      {
-        id: player2,
-        points: Number.parseInt(score2),
-      },
-    ]);
-    emitter.emit("update");
-    alert("Match Submitted");
+    try {
+      const ok = await addMatch([
+        {
+          id: player1,
+          points: Number.parseInt(score1),
+        },
+        {
+          id: player2,
+          points: Number.parseInt(score2),
+        },
+      ]);
+      if (ok) {
+        alert("Match Submitted");
+        await updateContent()
+      } else {
+        alert("Could not submit match");
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message === "unauthorized") {
+          router.push("/login");
+        }
+      }
+    }
 
     //reset scores
-    //leaev players
+    //leave players
     setScore1("0");
     setScore2("0");
   };

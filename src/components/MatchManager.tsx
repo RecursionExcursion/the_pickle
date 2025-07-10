@@ -1,19 +1,30 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { usePickleContext } from "../context/PickleContext";
-import { emitter } from "../lib/eventEmiter";
 import { removeMatch } from "../service/pickleService";
-import {  Player } from "../service/types";
+import { Player } from "../service/types";
 import { trashCanIco } from "../svg/svg";
 
 export default function MatchManager() {
-  const { matches, players } = usePickleContext();
+  const { matches, players, updateContent } = usePickleContext();
+  const router = useRouter();
 
   async function handleDelete(id: string) {
-    const ok = confirm("Are you sure you want to delete this match?");
-    if (ok) {
-      await removeMatch(id);
-      emitter.emit("update");
+    const confirmed = confirm("Are you sure you want to delete this match?");
+    if (confirmed) {
+      try {
+        const ok = await removeMatch(id);
+        if (ok) {
+          await updateContent();
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          if (err.message === "unauthorized") {
+            router.push("/login");
+          }
+        }
+      }
     }
   }
 
