@@ -32,29 +32,27 @@ export default function MatchAdder() {
 
     localStorage.setItem("ma1", player1);
     localStorage.setItem("ma2", player2);
-    try {
-      const ok = await addMatch([
-        {
-          id: player1,
-          points: Number.parseInt(score1),
-        },
-        {
-          id: player2,
-          points: Number.parseInt(score2),
-        },
-      ]);
-      if (ok) {
-        alert("Match Submitted");
-        await updateContent()
-      } else {
-        alert("Could not submit match");
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message === "unauthorized") {
-          router.push("/login");
-        }
-      }
+
+    const addMatchRes = await addMatch([
+      {
+        id: player1,
+        points: Number.parseInt(score1),
+      },
+      {
+        id: player2,
+        points: Number.parseInt(score2),
+      },
+    ]);
+
+    if (addMatchRes.status === 401) {
+      router.push("/login");
+    }
+
+    if (addMatchRes.payload) {
+      alert("Match Submitted");
+      await updateContent();
+    } else {
+      alert("Could not submit match");
     }
 
     //reset scores

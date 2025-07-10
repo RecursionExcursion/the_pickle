@@ -39,19 +39,16 @@ export const PickleProvider = (props: PickleProviderProps) => {
   }, []);
 
   async function updateContent() {
-    try {
-      const p = await getPlayers();
-      const m = await getMatches();
-      setPlayers(p);
-      setMatches(m);
-    } catch (err) {
-      if (err instanceof Error && err.message === "unauthorized") {
-        if (err.message === "unauthorized") {
-          router.push("/login");
-        } else {
-          alert(err.message);
-        }
-      }
+    const pRes = await getPlayers();
+    const mRes = await getMatches();
+
+    if (pRes.status === 401 || mRes.status === 401) {
+      router.push("/login");
+    }
+
+    if (pRes.status === 200 && mRes.status === 200) {
+      setPlayers(pRes.payload);
+      setMatches(mRes.payload);
     }
   }
 

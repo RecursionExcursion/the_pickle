@@ -13,17 +13,15 @@ export default function MatchManager() {
   async function handleDelete(id: string) {
     const confirmed = confirm("Are you sure you want to delete this match?");
     if (confirmed) {
-      try {
-        const ok = await removeMatch(id);
-        if (ok) {
-          await updateContent();
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          if (err.message === "unauthorized") {
-            router.push("/login");
-          }
-        }
+      const removeMatchRes = await removeMatch(id);
+
+      if (removeMatchRes.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (removeMatchRes.payload) {
+        await updateContent();
       }
     }
   }
