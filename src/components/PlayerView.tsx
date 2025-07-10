@@ -9,15 +9,28 @@ export default function PlayerView() {
   const prs = getPlayerRecords(players, matches);
 
   return (
-    <div className="flex flex-col justify-center items-center gap-2 pt-2 border border-white">
-      {prs.map((pr) => (
-        <div key={pr.player.id}>
-          <span>
-            {pr.player.name}={pr.wins}-{pr.losses} {`(${pr.pf})-(${pr.pa})`}
-          </span>
-        </div>
-      ))}
-    </div>
+      <table className="border-separate border-spacing-4 text-center border border-white">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>PF</th>
+            <th>PA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {prs.map((pr) => (
+            <tr key={pr.player.id}>
+              <td>{pr.player.name}</td>
+              <td>{pr.wins}</td>
+              <td>{pr.losses}</td>
+              <td>{pr.pf}</td>
+              <td>{pr.pa}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
   );
 }
 
