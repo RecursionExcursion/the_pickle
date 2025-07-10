@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 import { actualHamburgerIco } from "../svg/svg";
-import { View } from "../app/page";
-import { emitter } from "../lib/eventEmiter";
 
-export default function BurgerMenu() {
+import Link from "next/link";
+import { RouteLink } from "../routes/routes";
+import { usePathname } from "next/navigation";
+
+type BurgerMenuProps = {
+  links: RouteLink[];
+};
+
+export default function BurgerMenu(props: BurgerMenuProps) {
+  const { links } = props;
   const [open, setOpen] = useState(false);
 
-  function selectMenuItem(view: View) {
-    emitter.emit("menu", view);
-    setOpen(false);
-  }
+  const pathname = usePathname();
 
   return (
     <div>
-      <button className="scale-250" onClick={() => setOpen(!open)}>
+      <button className="scale-250 p-4" onClick={() => setOpen(!open)}>
         {actualHamburgerIco}
       </button>
       {open && (
@@ -34,27 +38,25 @@ export default function BurgerMenu() {
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold">Menu</h2>
         </div>
-        <nav className="p-4 space-y-4">
-          <button onClick={() => selectMenuItem("home")} className="block">
-            Home
-          </button>
-          <button onClick={() => selectMenuItem("players")} className="block">
-            Players
-          </button>
-          <button onClick={() => selectMenuItem("add")} className="block">
-            Add Match
-          </button>
-          <button onClick={() => selectMenuItem("head")} className="block">
-            H2H
-          </button>
-          <button onClick={() => selectMenuItem("manage")} className="block">
-            Manage Matches
-          </button>
+        <nav className="p-4 space-y-4 flex flex-col">
+          {links.map((l) => (
+            <Link key={l.text + l.path} href={l.path}>
+              <span
+                onClick={() => {
+                  if (pathname === l.path) {
+                    setOpen(false);
+                  }
+                }}
+              >
+                {l.text}
+              </span>
+            </Link>
+          ))}
           <button
+            className="w-fit"
             onClick={() => {
               setOpen(false);
             }}
-            className="block"
           >
             Close
           </button>

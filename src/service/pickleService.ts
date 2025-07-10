@@ -1,7 +1,8 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { Match, Player, Score } from "./types";
+import { revalidateTag } from "next/cache";
+import { getSessionCookie, setSessionCookie } from "./cookieService";
 
 const pickleRoute = process.env.PICKLE_API;
 
@@ -9,39 +10,80 @@ if (!pickleRoute) {
   throw Error("API route not found in env");
 }
 
-type Token = string | null;
+async function getToken() {
+  const cookie = await getSessionCookie();
+  if (cookie) {
+    return cookie.value;
+  }
+}
 
-const redirectToLogin = () => redirect("/login");
+const unauthorizedErrorMessage = "unauthorized";
 
-export async function getPlayers(token: Token) {
-  if (!token) redirectToLogin();
+const playersCacheTag = "players";
+const matchesCacheTag = "matches";
+
+export async function invalidatePlayers() {
+  revalidateTag(playersCacheTag);
+}
+
+export async function invalidateMatches() {
+  revalidateTag(matchesCacheTag);
+}
+
+export async function getPlayers() {
+  const token = await getToken();
+  if (!token) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   const res = await fetch(pickleRoute + "/player", {
+    next: { tags: [playersCacheTag] },
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (res.ok) {
-    return (await res.json()) as Player[];
+
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
   }
+
+  if (!res.ok) {
+    throw Error("failed to fetch players");
+  }
+
+  return (await res.json()) as Player[];
 }
 
-export async function getMatches(token: Token) {
-  if (!token) redirectToLogin();
+export async function getMatches() {
+  const token = await getToken();
+  if (!token) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   const res = await fetch(pickleRoute + "/match", {
+    next: { tags: [matchesCacheTag] },
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  if (res.ok) {
-    return (await res.json()) as Match[];
+
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
   }
+
+  if (!res.ok) {
+    throw Error("failed to fetch matches");
+  }
+
+  return (await res.json()) as Match[];
 }
 
-export async function addMatch(score: Score[], token: Token) {
-  if (!token) redirectToLogin();
+export async function addMatch(score: Score[]) {
+  const token = await getToken();
+  if (!token) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   const payload = {
     date: Date.now(),
@@ -57,7 +99,7 @@ export async function addMatch(score: Score[], token: Token) {
     ],
   };
 
-  await fetch(pickleRoute + "/match", {
+  const res = await fetch(pickleRoute + "/match", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -65,10 +107,25 @@ export async function addMatch(score: Score[], token: Token) {
     },
     body: JSON.stringify(payload),
   });
+
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
+  }
+
+  if (!res.ok) {
+    throw Error("Something went wrong");
+  }
+
+  if (res.ok) {
+    await invalidateMatches();
+  }
 }
 
-export async function removeMatch(matchId: string, token: Token) {
-  if (!token) redirectToLogin();
+export async function removeMatch(matchId: string): Promise<boolean> {
+  const token = await getToken();
+  if (!token) {
+    throw Error(unauthorizedErrorMessage);
+  }
 
   const payload = {
     id: matchId,
@@ -83,10 +140,14 @@ export async function removeMatch(matchId: string, token: Token) {
     body: JSON.stringify(payload),
   });
 
-  console.log({ res });
+  if (res.status === 401) {
+    throw Error(unauthorizedErrorMessage);
+  }
+
+  return res.ok;
 }
 
-export async function login(un: string, pw: string): Promise<string | null> {
+export async function login(un: string, pw: string): Promise<boolean> {
   const payload = {
     username: un,
     password: pw,
@@ -99,13 +160,12 @@ export async function login(un: string, pw: string): Promise<string | null> {
     },
     body: JSON.stringify(payload),
   });
-  console.log({ un, pw });
-  console.log(res);
 
-  if (res.ok) {
-    const token = await res.json();
-    console.log(token);
-    return token;
+  if (!res.ok) {
+    return false;
   }
-  return null;
+
+  const token = await res.json();
+  await setSessionCookie(token);
+  return true;
 }

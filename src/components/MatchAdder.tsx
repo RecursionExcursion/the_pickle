@@ -1,39 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Player } from "../service/types";
 import { addMatch } from "../service/pickleService";
 import { emitter } from "../lib/eventEmiter";
 import { PlayerSelect } from "./PlayerSelect";
 import { ScoreInput } from "./ScoreInput";
-import { getToken } from "../service/localStorageService";
+import { usePickleContext } from "../context/PickleContext";
+import { useSearchParams } from "next/navigation";
+import LinkButton from "./LinkButton";
 
-type MatchAdderProps = {
-  players: Player[];
-};
+export default function MatchAdder() {
+  const { players } = usePickleContext();
 
-export default function MatchAdder(props: MatchAdderProps) {
-  const { players } = props;
+  const searchParams = useSearchParams();
 
-  const [player1, setPlayer1] = useState<string>();
+  const [player1, setPlayer1] = useState<string | undefined>(
+    () => searchParams.get("p1") ?? localStorage.getItem("ma1") ?? undefined
+  );
   const [score1, setScore1] = useState("0");
-  const [player2, setPlayer2] = useState<string>();
+  const [player2, setPlayer2] = useState<string | undefined>(
+    () => searchParams.get("p2") ?? localStorage.getItem("ma2") ?? undefined
+  );
   const [score2, setScore2] = useState("0");
-
-  useEffect(() => {
-    const lsId1 = localStorage.getItem("ma1");
-    const lsId2 = localStorage.getItem("ma2");
-
-    if (lsId1) {
-      // const p1 = players.find((p) => p.id === lsId1);
-      setPlayer1(lsId1);
-    }
-
-    if (lsId2) {
-      // const p2 = players.find((p) => p.id === lsId2);
-      setPlayer2(lsId2);
-    }
-  }, []);
 
   const handleSubmit = async () => {
     if (!player1 || !player2) {
@@ -43,26 +32,22 @@ export default function MatchAdder(props: MatchAdderProps) {
     localStorage.setItem("ma1", player1);
     localStorage.setItem("ma2", player2);
 
-    await addMatch(
-      [
-        {
-          id: player1,
-          points: Number.parseInt(score1),
-        },
-        {
-          id: player2,
-          points: Number.parseInt(score2),
-        },
-      ],
-      getToken()
-    );
+    await addMatch([
+      {
+        id: player1,
+        points: Number.parseInt(score1),
+      },
+      {
+        id: player2,
+        points: Number.parseInt(score2),
+      },
+    ]);
     emitter.emit("update");
     alert("Match Submitted");
 
-    //reset inputs
-    // setPlayer1("");
+    //reset scores
+    //leaev players
     setScore1("0");
-    // setPlayer2("");
     setScore2("0");
   };
 
@@ -87,6 +72,9 @@ export default function MatchAdder(props: MatchAdderProps) {
       <button className="border border-white" onClick={handleSubmit}>
         Submit
       </button>
+      <LinkButton href={`/h2h?p1=${player1}&p2=${player2}`}>
+        View H2H
+      </LinkButton>
     </div>
   );
 }

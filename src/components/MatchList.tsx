@@ -22,10 +22,13 @@ export default function MatchList(props: MatchListProps) {
   const [sharedMatches, setSharedMatches] = useState<Match[]>([]);
 
   useEffect(() => {
+    //reset state
     setBestMatch(undefined);
     setWorstMatch(undefined);
     setP1Wins(0);
     setP2Wins(0);
+    setP1Points(0);
+    setP2Points(0);
 
     let bestPointDiff = Number.MAX_SAFE_INTEGER;
     let worstPointDiff = Number.MIN_SAFE_INTEGER;
