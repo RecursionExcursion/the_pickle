@@ -48,11 +48,11 @@ export default function HomePageView() {
         </div>
       </div>
       <div className="flex gap-2">
-        <div className="flex w-24 h-24 relative scale-x-[-1]">
+        <div className="flex w-20 h-20 relative scale-x-[-1]">
           <Logo />
         </div>
         <span className="text-6xl text-center">THE PICKLE</span>
-        <div className="flex w-24 h-24 relative">
+        <div className="flex w-20 h-20 relative">
           <Logo />
         </div>
       </div>

@@ -8,9 +8,11 @@ import {
   getPlayers,
   invalidateMatches,
   invalidatePlayers,
+  wakeupService,
 } from "../service/pickleService";
 import { routeLinks } from "../routes/routes";
 import { useRouter } from "next/navigation";
+import { useBackendConnectionWatcher } from "../hooks/UseBackendConnectionWatcher";
 
 type PickleContextState = {
   players: Player[];
@@ -32,8 +34,10 @@ export const PickleProvider = (props: PickleProviderProps) => {
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>();
   const [matches, setMatches] = useState<Match[]>();
+  const { connect, ConnectionStatus } = useBackendConnectionWatcher();
 
   useEffect(() => {
+    connect(wakeupService)
     updateContent();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -72,6 +76,7 @@ export const PickleProvider = (props: PickleProviderProps) => {
     >
       <div className="flex flex-col gap-5 p-4 h-screen">
         <BurgerMenu links={routeLinks} />
+        <ConnectionStatus />
         {props.children}
       </div>
     </PickleContext.Provider>
