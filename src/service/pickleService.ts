@@ -176,3 +176,8 @@ export async function login(un: string, pw: string): Promise<boolean> {
   await setSessionCookie(token);
   return true;
 }
+
+export async function wakeupService(): Promise<boolean> {
+  const res = await fetch(pickleRoute as string);
+  return res.ok;
+}
