@@ -8,8 +8,6 @@ type ServiceResponse<T> = {
 const playersRoute = "api/the-pickle/players";
 const matchesRoute = "api/the-pickle/matches";
 
-const unauthorizedErrorMessage = "unauthorized";
-
 // const playersCacheTag = "players";
 // const matchesCacheTag = "matches";
 
@@ -23,6 +21,7 @@ const unauthorizedErrorMessage = "unauthorized";
 
 export async function getPlayers(): Promise<ServiceResponse<Player[]>> {
   const res = await fetch(playersRoute, {
+    cache: "no-store",
     // next: { tags: [playersCacheTag] },
   });
 
@@ -34,6 +33,7 @@ export async function getPlayers(): Promise<ServiceResponse<Player[]>> {
 
 export async function getMatches(): Promise<ServiceResponse<Match[]>> {
   const res = await fetch(matchesRoute, {
+    cache: "no-store",
     // next: { tags: [matchesCacheTag] },
   });
 
@@ -88,10 +88,6 @@ export async function removeMatch(
     },
     body: JSON.stringify(payload),
   });
-
-  if (res.status === 401) {
-    throw Error(unauthorizedErrorMessage);
-  }
 
   return {
     status: res.status,
