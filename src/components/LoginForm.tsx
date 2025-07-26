@@ -21,7 +21,6 @@ export default function LoginForm() {
           pw: password,
         }),
       });
-      console.log({ res });
 
       if (res.ok) {
         router.push("/");
