@@ -6,6 +6,7 @@ import BurgerMenu from "../components/BurgerMenu";
 import { routeLinks } from "../routes/routes";
 import Spinner from "../components/Spinner";
 import { getMatches, getPlayers } from "../service/pickleService";
+import { useRouter } from "next/navigation";
 
 type PickleContextState = {
   players: Player[];
@@ -24,6 +25,7 @@ type PickleProviderProps = {
 };
 
 export const PickleProvider = (props: PickleProviderProps) => {
+  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>();
   const [matches, setMatches] = useState<Match[]>();
 
@@ -33,9 +35,15 @@ export const PickleProvider = (props: PickleProviderProps) => {
 
   async function updateContent() {
     const pRes = await getPlayers();
-    setPlayers(pRes.payload);
     const mRes = await getMatches();
-    setMatches(mRes.payload);
+
+    if (!mRes.ok || !pRes.ok) {
+      router.push("/login");
+      return;
+    }
+
+    setPlayers(await pRes.json());
+    setMatches(await mRes.json());
   }
 
   if (!players || !matches) {

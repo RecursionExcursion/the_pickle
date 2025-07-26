@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "./app/api/the-pickle/cookieAuth";
 
 /* Defines which routes run the middleware */
 export const config = {
@@ -20,7 +21,7 @@ export async function middleware(request: NextRequest) {
 
   const pathIsLogin = url.pathname === "/login";
 
-  const sessionCookie = request.headers.get("cookie");
+  const sessionCookie = await getSessionCookie();
 
   if (sessionCookie) {
     //Redirect if session is valid and login page is being hit

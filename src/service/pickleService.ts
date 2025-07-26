@@ -1,9 +1,9 @@
-import { Match, Player, Score } from "./types";
+import { Score } from "./types";
 
-type ServiceResponse<T> = {
-  status: number;
-  payload: T;
-};
+// type ServiceResponse<T> = {
+//   status: number;
+//   payload: T;
+// };
 
 const playersRoute = "api/the-pickle/players";
 const matchesRoute = "api/the-pickle/matches";
@@ -19,33 +19,19 @@ const matchesRoute = "api/the-pickle/matches";
 //   revalidateTag(matchesCacheTag);
 // }
 
-export async function getPlayers(): Promise<ServiceResponse<Player[]>> {
-  const res = await fetch(playersRoute, {
+export async function getPlayers() {
+  return await fetch(playersRoute, {
     cache: "no-store",
-    // next: { tags: [playersCacheTag] },
   });
-
-  return {
-    status: res.status,
-    payload: (await res.json()) as Player[],
-  };
 }
 
-export async function getMatches(): Promise<ServiceResponse<Match[]>> {
-  const res = await fetch(matchesRoute, {
+export async function getMatches() {
+  return await fetch(matchesRoute, {
     cache: "no-store",
-    // next: { tags: [matchesCacheTag] },
   });
-
-  return {
-    status: res.status,
-    payload: (await res.json()) as Match[],
-  };
 }
 
-export async function addMatch(
-  score: Score[]
-): Promise<ServiceResponse<boolean>> {
+export async function addMatch(score: Score[]) {
   const payload = {
     date: Date.now(),
     score: [
@@ -60,37 +46,25 @@ export async function addMatch(
     ],
   };
 
-  const res = await fetch(matchesRoute, {
+  return await fetch(matchesRoute, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
-
-  return {
-    status: res.status,
-    payload: res.ok,
-  };
 }
 
-export async function removeMatch(
-  matchId: string
-): Promise<ServiceResponse<boolean>> {
+export async function removeMatch(matchId: string) {
   const payload = {
     id: matchId,
   };
 
-  const res = await fetch(matchesRoute, {
+  return await fetch(matchesRoute, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
-
-  return {
-    status: res.status,
-    payload: res.ok,
-  };
 }
