@@ -15,7 +15,7 @@ const mw_jwt_auth: MW = (h: Handler) => {
     const session = await getSessionCookie();
 
     if (!session) {
-      return new NextResponse(null, { status: 401 });
+      return NextResponse.redirect(new URL("/login", r.url));
     }
 
     if (!verifyToken(session.value)) {
