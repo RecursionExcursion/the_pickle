@@ -20,7 +20,7 @@ export default function MatchManager() {
         return;
       }
 
-      if (removeMatchRes.payload) {
+      if (removeMatchRes.ok) {
         await updateContent();
       }
     }

@@ -48,7 +48,7 @@ export default function MatchAdder() {
       router.push("/login");
     }
 
-    if (addMatchRes.payload) {
+    if (addMatchRes.ok) {
       alert("Match Submitted");
       await updateContent();
     } else {
