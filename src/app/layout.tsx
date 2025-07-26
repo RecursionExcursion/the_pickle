@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
+// import { cachedWakeupService } from "../service/pickleService";
 
 const dancingScript = Dancing_Script({
-  variable:"--font-dancing-script",
+  variable: "--font-dancing-script",
   subsets: ["latin"],
-})
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  //wake up backend, this fn debounces so no worries if its called later
+  // cachedWakeupService();
   return (
     <html lang="en">
       <body

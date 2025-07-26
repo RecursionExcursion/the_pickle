@@ -1,7 +1,7 @@
 export type Player = {
   id: string;
   name: string;
-  Matches: string[];
+  matches: string[];
 };
 
 export type Match = {

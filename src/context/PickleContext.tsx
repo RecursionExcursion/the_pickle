@@ -3,16 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Match, Player } from "../service/types";
 import BurgerMenu from "../components/BurgerMenu";
-import {
-  getMatches,
-  getPlayers,
-  invalidateMatches,
-  invalidatePlayers,
-  wakeupService,
-} from "../service/pickleService";
 import { routeLinks } from "../routes/routes";
-import { useRouter } from "next/navigation";
-import { useBackendConnectionWatcher } from "../hooks/UseBackendConnectionWatcher";
+import Spinner from "../components/Spinner";
+import { getMatches, getPlayers } from "../service/pickleService";
 
 type PickleContextState = {
   players: Player[];
@@ -31,39 +24,26 @@ type PickleProviderProps = {
 };
 
 export const PickleProvider = (props: PickleProviderProps) => {
-  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>();
   const [matches, setMatches] = useState<Match[]>();
-  const { connect, ConnectionStatus } = useBackendConnectionWatcher();
 
   useEffect(() => {
-    connect(wakeupService)
     updateContent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function updateContent() {
     const pRes = await getPlayers();
+    setPlayers(pRes.payload);
     const mRes = await getMatches();
-
-    if (pRes.status === 401 || mRes.status === 401) {
-      router.push("/login");
-    }
-
-    if (pRes.status === 200 && mRes.status === 200) {
-      setPlayers(pRes.payload);
-      setMatches(mRes.payload);
-    }
-  }
-
-  async function invalidateAndUpdateContent() {
-    await invalidatePlayers();
-    await invalidateMatches();
-    await updateContent();
+    setMatches(mRes.payload);
   }
 
   if (!players || !matches) {
-    return null;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
@@ -71,12 +51,11 @@ export const PickleProvider = (props: PickleProviderProps) => {
       value={{
         players: players,
         matches: matches,
-        updateContent: invalidateAndUpdateContent,
+        updateContent,
       }}
     >
       <div className="flex flex-col gap-5 p-4 h-screen">
         <BurgerMenu links={routeLinks} />
-        <ConnectionStatus />
         {props.children}
       </div>
     </PickleContext.Provider>
