@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import thePickle from "../the_pickle";
 import { mw, mw_pipe } from "../mw";
-import { Score } from "../../../../service/types";
+import { Match, Score } from "../../../../service/types";
+
+const oneDayInMs = 24 * 60 * 60 * 1000;
+
+const matchCache: {
+  date: number;
+  matches: Match[];
+} = { date: 0, matches: [] };
 
 export const POST = mw_pipe(...mw)(async (r: NextRequest) => {
   const { date = Date.now(), score } = (await r.json()) as {
@@ -13,7 +20,18 @@ export const POST = mw_pipe(...mw)(async (r: NextRequest) => {
 });
 
 export const GET = mw_pipe(...mw)(async () => {
+  if (matchCache.date + oneDayInMs > Date.now()) {
+    return NextResponse.json(matchCache.matches, { status: 200 });
+  }
+
+  console.log("Matches route");
   const matches = await thePickle.matches.get();
+
+  if (matches.data) {
+    matchCache.date = Date.now();
+    matchCache.matches = matches.data;
+  }
+
   return NextResponse.json(matches.data, { status: 200 });
 });
 
