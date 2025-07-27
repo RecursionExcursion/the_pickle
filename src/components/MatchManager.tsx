@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { usePickleContext } from "../context/PickleContext";
 import { removeMatch } from "../service/pickleService";
-import { Player } from "../service/types";
-import { trashCanIco } from "../svg/svg";
+import { Match, Player } from "../service/types";
+import { pen, trashCanIco } from "../svg/svg";
 
 export default function MatchManager() {
   const { matches, players, updateContent } = usePickleContext();
@@ -26,6 +26,8 @@ export default function MatchManager() {
     }
   }
 
+  function handleEdit(m: Match): void {}
+
   return (
     <div>
       {matches.map((m) => {
@@ -45,6 +47,12 @@ export default function MatchManager() {
                 {getPlayer(b.id, players).name}-{b.points}
               </span>
             </span>
+            <button
+              className="w-4 h-4 text-white cursor-pointer"
+              onClick={() => handleEdit(m)}
+            >
+              {pen}
+            </button>{" "}
             <button
               className="w-4 h-4 text-red-500 cursor-pointer"
               onClick={() => handleDelete(m.id)}
