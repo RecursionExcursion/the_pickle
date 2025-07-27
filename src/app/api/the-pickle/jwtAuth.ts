@@ -7,7 +7,13 @@ if (!PICKLE_SECRET) {
 }
 
 export function createToken(payload: object) {
-  return jwt.sign(payload, PICKLE_SECRET as string);
+  return jwt.sign(
+    {
+      data: payload,
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1hour
+    },
+    PICKLE_SECRET as string
+  );
 }
 
 export function verifyToken(token: string) {

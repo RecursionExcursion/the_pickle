@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePickleContext } from "../context/PickleContext";
-import Logo from "./Logo";
 
 export default function HomePageView() {
   const { matches } = usePickleContext();

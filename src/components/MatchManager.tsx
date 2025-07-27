@@ -26,7 +26,9 @@ export default function MatchManager() {
     }
   }
 
-  function handleEdit(m: Match): void {}
+  function handleEdit(m: Match): void {
+    console.log(m);
+  }
 
   return (
     <div>

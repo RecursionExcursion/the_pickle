@@ -15,11 +15,11 @@ export const POST = mw_pipe()(async (r: NextRequest) => {
 
   const tokenRes = await thePickle.login.login(pl.un, pl.pw);
 
-  if (!tokenRes.data) {
+  if (!tokenRes.payload) {
     return new NextResponse(null, { status: 401 });
   }
 
-  await setSessionCookie(tokenRes.data);
+  await setSessionCookie(tokenRes.payload);
   return new NextResponse(null, { status: 200 });
 });
 

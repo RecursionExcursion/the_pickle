@@ -15,7 +15,6 @@ const mw_jwt_auth: MW = (h: Handler) => {
     const session = await getSessionCookie();
 
     if (!session) {
-      // return NextResponse.redirect(new URL("/login", r.url));
       return new NextResponse(null, { status: 401 });
     }
 
@@ -23,8 +22,6 @@ const mw_jwt_auth: MW = (h: Handler) => {
       await deleteSessionCookie();
       return new NextResponse(null, { status: 401 });
     }
-    console.log("Made it past");
-
     return h(r);
   };
 };

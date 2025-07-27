@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { actualHamburgerIco } from "../svg/svg";
-
 import Link from "next/link";
 import { RouteLink } from "../routes/routes";
 import { usePathname } from "next/navigation";

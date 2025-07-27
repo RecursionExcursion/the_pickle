@@ -19,11 +19,17 @@ type DB_DATA_SHAPE = {
   matches: Match[];
 };
 
-type PickleHttpResponse<T> = {
-  status: number;
+class PickleResponse<T> {
+  status: number = 200;
   message?: string;
-  data?: T;
-};
+  payload?: T;
+  constructor(props: { status?: number; message?: string; payload?: T }) {
+    if (props.status) this.status = props.status;
+    if (props.message) this.message = props.message;
+    if (props.payload) this.payload = props.payload;
+  }
+  ok = () => this.status >= 200 && this.status <= 299;
+}
 
 /* To be used on the server only  */
 class ThePickle {
@@ -52,18 +58,17 @@ class ThePickle {
     );
 
     const success = !!res && res.acknowledged && res.modifiedCount === 1;
-    return {
+    return new PickleResponse<void>({
       status: success ? 200 : 404,
-      data: success,
-    } as PickleHttpResponse<boolean>;
+    });
   }
 
   login = {
     login: async (un: string, pw: string) => {
-      const res = { status: 401 } as PickleHttpResponse<string>;
+      const res = new PickleResponse<string>({ status: 401 });
       if (un === PICKLE_USERNAME && pw === PICKLE_PASSWORD) {
         res.status = 200;
-        res.data = createToken({ sub: un });
+        res.payload = createToken({ sub: un });
       }
       return res;
     },
@@ -71,28 +76,28 @@ class ThePickle {
 
   player = {
     get: async () => {
-      return {
+      return new PickleResponse<Player[]>({
         status: 200,
-        data: (await this.#getAppData())?.players ?? [],
-      } as PickleHttpResponse<Player[]>;
+        payload: (await this.#getAppData())?.players ?? [],
+      });
     },
     create: async () => {},
   };
 
   matches = {
     get: async () => {
-      return {
+      return new PickleResponse<Match[]>({
         status: 200,
-        data: (await this.#getAppData())?.matches ?? [],
-      } as PickleHttpResponse<Match[]>;
+        payload: (await this.#getAppData())?.matches ?? [],
+      });
     },
     create: async (
       date: number,
       score: Score[]
-    ): Promise<PickleHttpResponse<boolean>> => {
-      const res = {
+    ): Promise<PickleResponse<void>> => {
+      const res = new PickleResponse<void>({
         status: 400,
-      } as PickleHttpResponse<boolean>;
+      });
 
       //validate params
       if (score.length !== 2) {
@@ -133,14 +138,13 @@ class ThePickle {
       appData.matches.push(newMatch);
 
       this.#updateAppData(appData);
-      res.data = true;
       res.status = 200;
       return res;
     },
     delete: async (matchId: string) => {
-      const res = {
+      const res = new PickleResponse<void>({
         status: 404,
-      } as PickleHttpResponse<void>;
+      });
 
       const appData = await this.#getAppData();
       if (!appData) {

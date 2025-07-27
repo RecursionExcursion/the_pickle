@@ -2,26 +2,20 @@ import { NextResponse } from "next/server";
 import thePickle from "../the_pickle";
 import { mw, mw_pipe } from "../mw";
 import { Player } from "@/service/types";
+import { ApiCache } from "../cache";
 
-const oneDayInMs = 24 * 60 * 60 * 1000;
-
-const cache :{
-  date: number;
-  data: Player[];
-} = { date: 0, data: [] };
+const playerCache = new ApiCache<Player[]>([]);
 
 export const GET = mw_pipe(...mw)(async () => {
-  if (cache.date + oneDayInMs > Date.now()) {
-      return NextResponse.json(cache.data, { status: 200 });
-    }
-
-  console.log("Fetching Player Data");
-  const players = await thePickle.player.get();
-
-  if (players.data) {
-    cache.date = Date.now();
-    cache.data = players.data;
+  if (playerCache.isValid()) {
+    return NextResponse.json(playerCache.data, { status: 200 });
   }
 
-  return NextResponse.json(players.data, { status: 200 });
+  const res = await thePickle.player.get();
+
+  if (res.ok()) {
+    playerCache.set(res.payload!);
+  }
+
+  return NextResponse.json(res.payload, { status: 200 });
 });
