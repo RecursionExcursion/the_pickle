@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import thePickle from "../the_pickle";
-import { mw, mw_pipe } from "../mw";
+import { authChain, mw_pipe } from "../mw";
 import { deleteSessionCookie, setSessionCookie } from "../cookieAuth";
 
 export const POST = mw_pipe()(async (r: NextRequest) => {
@@ -23,7 +23,7 @@ export const POST = mw_pipe()(async (r: NextRequest) => {
   return new NextResponse(null, { status: 200 });
 });
 
-export const DELETE = mw_pipe(...mw)(async () => {
+export const DELETE = mw_pipe(...authChain)(async () => {
   await deleteSessionCookie();
   return new NextResponse(null, { status: 200 });
 });

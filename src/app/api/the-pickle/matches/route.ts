@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import thePickle from "../the_pickle";
-import { mw, mw_pipe } from "../mw";
+import { authChain, mw_pipe } from "../mw";
 import { Match, Score } from "../../../../service/types";
 import { ApiCache } from "../cache";
 
 const matchCache = new ApiCache<Match[]>([]);
 
-export const POST = mw_pipe(...mw)(async (r: NextRequest) => {
+export const POST = mw_pipe(...authChain)(async (r: NextRequest) => {
   const { date = Date.now(), score } = (await r.json()) as {
     date?: number;
     score: Score[];
@@ -20,7 +20,7 @@ export const POST = mw_pipe(...mw)(async (r: NextRequest) => {
   return NextResponse.json(data, { status: status });
 });
 
-export const GET = mw_pipe(...mw)(async () => {
+export const GET = mw_pipe(...authChain)(async () => {
   if (matchCache.isValid()) {
     return NextResponse.json(matchCache.data, { status: 200 });
   }
@@ -34,7 +34,7 @@ export const GET = mw_pipe(...mw)(async () => {
   return NextResponse.json(matches.payload, { status: 200 });
 });
 
-export const DELETE = mw_pipe(...mw)(async (r: NextRequest) => {
+export const DELETE = mw_pipe(...authChain)(async (r: NextRequest) => {
   const { id } = (await r.json()) as {
     id: string;
   };

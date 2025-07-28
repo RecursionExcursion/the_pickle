@@ -26,4 +26,4 @@ const mw_jwt_auth: MW = (h: Handler) => {
   };
 };
 
-export const mw = [mw_jwt_auth];
+export const authChain = [mw_jwt_auth];
