@@ -18,8 +18,8 @@ export default function BurgerMenu(props: BurgerMenuProps) {
 
   return (
     <div>
-      <button className="p-4 reverse-shadow rounded-sm" onClick={() => setOpen(!open)}>
-        <Image src={"hamburgerIcon.svg"} alt={""} width={100} height={100}/>
+      <button className="p-4 rounded-sm" onClick={() => setOpen(!open)}>
+        <Image src={"hamburgerIcon.svg"} alt={""} width={60} height={60}/>
       </button>
       {open && (
         <div
