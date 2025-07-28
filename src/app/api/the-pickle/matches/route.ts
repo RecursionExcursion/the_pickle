@@ -11,13 +11,13 @@ export const POST = mw_pipe(...authChain)(async (r: NextRequest) => {
     date?: number;
     score: Score[];
   };
-  const { payload: data, status } = await thePickle.matches.create(date, score);
+  const res = await thePickle.matches.create(date, score);
 
-  if (data) {
+  if (res.ok()) {
     matchCache.invalidate();
   }
 
-  return NextResponse.json(data, { status: status });
+  return NextResponse.json(res.payload, { status: res.status });
 });
 
 export const GET = mw_pipe(...authChain)(async () => {
@@ -25,13 +25,13 @@ export const GET = mw_pipe(...authChain)(async () => {
     return NextResponse.json(matchCache.data, { status: 200 });
   }
 
-  const matches = await thePickle.matches.get();
+  const res = await thePickle.matches.get();
 
-  if (matches.payload) {
-    matchCache.set(matches.payload);
+  if (res.ok()) {
+    matchCache.set(res.payload);
   }
 
-  return NextResponse.json(matches.payload, { status: 200 });
+  return NextResponse.json(res.payload, { status: res.status });
 });
 
 export const DELETE = mw_pipe(...authChain)(async (r: NextRequest) => {

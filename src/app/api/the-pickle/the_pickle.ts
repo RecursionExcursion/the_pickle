@@ -22,13 +22,18 @@ type DB_DATA_SHAPE = {
 class PickleResponse<T> {
   status: number = 200;
   message?: string;
-  payload?: T;
-  constructor(props: { status?: number; message?: string; payload?: T }) {
+  payload: T;
+  constructor(props: { status?: number; payload?: T; message?: string }) {
     if (props.status) this.status = props.status;
     if (props.message) this.message = props.message;
-    if (props.payload) this.payload = props.payload;
+    this.payload = props.payload ?? ({} as T);
   }
   ok = () => this.status >= 200 && this.status <= 299;
+  set(status?: number, payload?: T, message?: string) {
+    if (status) this.status = status;
+    if (message) this.message = message;
+    if (payload) this.payload = payload;
+  }
 }
 
 /* To be used on the server only  */
@@ -65,12 +70,13 @@ class ThePickle {
 
   login = {
     login: async (un: string, pw: string) => {
-      const res = new PickleResponse<string>({ status: 401 });
       if (un === PICKLE_USERNAME && pw === PICKLE_PASSWORD) {
-        res.status = 200;
-        res.payload = createToken({ sub: un });
+        return new PickleResponse<string>({
+          status: 200,
+          payload: createToken({ sub: un }),
+        });
       }
-      return res;
+      return new PickleResponse<string>({ status: 401 });
     },
   };
 
@@ -131,14 +137,12 @@ class ThePickle {
         score,
       };
 
-      console.log({ p1, p2 });
-
       p1.matches.push(newMatch.id);
       p2.matches.push(newMatch.id);
       appData.matches.push(newMatch);
 
       this.#updateAppData(appData);
-      res.status = 200;
+      res.set(200);
       return res;
     },
     delete: async (matchId: string) => {
@@ -170,7 +174,7 @@ class ThePickle {
       }
 
       this.#updateAppData(appData);
-      res.status = 200;
+      res.set(200);
       return res;
     },
   };

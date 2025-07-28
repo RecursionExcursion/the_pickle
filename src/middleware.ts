@@ -33,8 +33,6 @@ export async function middleware(request: NextRequest) {
     //Proceed with request
     return NextResponse.next();
   }
-  console.log("Session Cookie not found");
-
   //Session is invalid below
 
   //Prevents redirect

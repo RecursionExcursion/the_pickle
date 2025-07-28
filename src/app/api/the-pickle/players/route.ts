@@ -14,7 +14,7 @@ export const GET = mw_pipe(...authChain)(async () => {
   const res = await thePickle.player.get();
 
   if (res.ok()) {
-    playerCache.set(res.payload!);
+    playerCache.set(res.payload);
   }
 
   return NextResponse.json(res.payload, { status: 200 });
