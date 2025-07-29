@@ -7,6 +7,7 @@ import { routeLinks } from "../routes/routes";
 import Spinner from "../components/Spinner";
 import { getMatches, getPlayers } from "../service/pickleService";
 import { useRouter } from "next/navigation";
+import PickleBallAnimation from "../components/PickleBallAnimation";
 
 type PickleContextState = {
   players: Player[];
@@ -63,7 +64,8 @@ export const PickleProvider = (props: PickleProviderProps) => {
         updateContent,
       }}
     >
-      <div className="flex flex-col gap-5 p-4 h-screen">
+      <div className="flex flex-col gap-5 h-screen">
+        <PickleBallAnimation />
         <BurgerMenu links={routeLinks} />
         {props.children}
       </div>

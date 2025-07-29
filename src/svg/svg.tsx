@@ -97,3 +97,119 @@ export const pen = (
     <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
   </svg>
 );
+
+const strokeWidth1 = .5;
+const strokeWidth2 = 1;
+
+export const courtSvg = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 20 44"
+    fill="none"
+    stroke="black"
+  >
+    {/* Horz */}
+    <line
+      x1="0"
+      y1="0"
+      x2="20"
+      y2="0"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+    <line
+      x1="0"
+      y1="44"
+      x2="20"
+      y2="44"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+    {/* Vert */}
+    <line
+      x1="20"
+      y1="44"
+      x2="20"
+      y2="0"
+      stroke="white"
+      strokeWidth={strokeWidth2}
+    />
+    <line
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="44"
+      stroke="white"
+      strokeWidth={strokeWidth2}
+    />
+
+    {/* Center line */}
+    <line
+      x1="0"
+      y1="22"
+      x2="20"
+      y2="22"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+    {/*  kitchen */}
+    <line
+      x1="0"
+      y1="29"
+      x2="20"
+      y2="29"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+    <line
+      x1="0"
+      y1="15"
+      x2="20"
+      y2="15"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+
+    {/* Center back lines */}
+    <line
+      x1="10"
+      y1="0"
+      x2="10"
+      y2="15"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+    <line
+      x1="10"
+      y1="29"
+      x2="10"
+      y2="44"
+      stroke="white"
+      strokeWidth={strokeWidth1}
+    />
+  </svg>
+);
+
+export const ballSvg = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="40 40 20 20"
+    fill="none"
+  >
+    {/* Ball */}
+    <circle cx="50" cy="50" r="10" fill="#e0ef00" />
+    {/* Holes */}
+    {/* Center Hole */}
+    <circle cx="50" cy="50" r="2" fill="#c3d300" stroke="none" />
+    
+    <circle cx="55" cy="55" r="2" fill="#c3d300" stroke="none" />
+    <circle cx="45" cy="45" r="2" fill="#c3d300" stroke="none" />
+
+    <circle cx="55" cy="45" r="2" fill="#c3d300" stroke="none" />
+    <circle cx="45" cy="55" r="2" fill="#c3d300" stroke="none" />
+  </svg>
+);
