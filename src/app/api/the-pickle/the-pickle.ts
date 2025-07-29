@@ -5,13 +5,11 @@ import { PG_Pickle } from "./pickle-pg-driver";
 import { brotliCompressor } from "./compresion-service";
 
 const COLLECTION_KEY = "pickle";
-const COLLECTION_APP_NAME = "ThePickle"
+const COLLECTION_APP_NAME = "ThePickle";
 
-const DB_NAME = process.env.DB_NAME_PICKLE;
 const PICKLE_USERNAME = process.env.PICKLE_USERNAME;
 const PICKLE_PASSWORD = process.env.PICKLE_PASSWORD;
 
-assertIsString(DB_NAME);
 assertIsString(PICKLE_USERNAME);
 assertIsString(PICKLE_PASSWORD);
 
@@ -58,7 +56,9 @@ class ThePickle {
 
   async #getAppData() {
     const respg = await this.db.get(COLLECTION_KEY);
-    const data = JSON.parse(brotliCompressor.decompress(respg.data)) as APP_DATA_SHAPE
+    const data = JSON.parse(
+      brotliCompressor.decompress(respg.data)
+    ) as APP_DATA_SHAPE;
     return data as APP_DATA_SHAPE;
   }
 
