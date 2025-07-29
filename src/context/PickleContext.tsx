@@ -31,6 +31,7 @@ export const PickleProvider = (props: PickleProviderProps) => {
 
   useEffect(() => {
     updateContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function updateContent() {

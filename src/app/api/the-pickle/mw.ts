@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteSessionCookie, getSessionCookie } from "./cookieAuth";
-import { verifyToken } from "./jwtAuth";
+import { deleteSessionCookie, getSessionCookie } from "./cookie-auth";
+import { verifyToken } from "./jwt-auth";
 
 type Handler = (req: NextRequest) => Promise<NextResponse>;
 type MW = (h: Handler) => Handler;
@@ -15,7 +15,6 @@ const mw_jwt_auth: MW = (h: Handler) => {
     const session = await getSessionCookie();
 
     if (!session) {
-      // return NextResponse.redirect(new URL("/login", r.url));
       return new NextResponse(null, { status: 401 });
     }
 
@@ -23,10 +22,8 @@ const mw_jwt_auth: MW = (h: Handler) => {
       await deleteSessionCookie();
       return new NextResponse(null, { status: 401 });
     }
-    console.log("Made it past");
-
     return h(r);
   };
 };
 
-export const mw = [mw_jwt_auth];
+export const authChain = [mw_jwt_auth];

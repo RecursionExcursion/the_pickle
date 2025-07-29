@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Match, Player } from "../service/types";
+import CollapsibleMenu from "./CollapsibleMenu";
 
 type MatchListProps = {
   player1: Player;
@@ -14,8 +15,10 @@ export default function MatchList(props: MatchListProps) {
 
   const [p1Wins, setP1Wins] = useState(0);
   const [p2Wins, setP2Wins] = useState(0);
+  const [p1BestStreak, setP1BestStreak] = useState(0);
   const [p1Points, setP1Points] = useState(0);
   const [p2Points, setP2Points] = useState(0);
+  const [p2BestStreak, setP2BestStreak] = useState(0);
 
   const [bestMatch, setBestMatch] = useState<Match>();
   const [worstMatch, setWorstMatch] = useState<Match>();
@@ -29,9 +32,16 @@ export default function MatchList(props: MatchListProps) {
     setP2Wins(0);
     setP1Points(0);
     setP2Points(0);
+    setP1BestStreak(0);
+    setP2BestStreak(0);
 
     let bestPointDiff = Number.MAX_SAFE_INTEGER;
     let worstPointDiff = Number.MIN_SAFE_INTEGER;
+
+    let p1Best = 0;
+    let p1CurrStreak = 0;
+    let p2Best = 0;
+    let p2CurrStreak = 0;
 
     const releventMatches = matches.filter((m) => {
       const [a, b] = m.score;
@@ -48,8 +58,14 @@ export default function MatchList(props: MatchListProps) {
 
       if (p1Points > p2Points) {
         setP1Wins((prev) => prev + 1);
+        p1CurrStreak++;
+        p1Best = Math.max(p1Best, p1CurrStreak);
+        p2CurrStreak = 0;
       } else {
         setP2Wins((prev) => prev + 1);
+        p2CurrStreak++;
+        p2Best = Math.max(p2Best, p2CurrStreak);
+        p1CurrStreak = 0;
       }
 
       setP1Points((prev) => prev + p1Points);
@@ -67,11 +83,13 @@ export default function MatchList(props: MatchListProps) {
       }
     });
 
-    setSharedMatches(releventMatches);
+    setSharedMatches(releventMatches.sort((a, b) => b.date - a.date));
+    setP1BestStreak(p1Best);
+    setP2BestStreak(p2Best);
   }, [matches, player1, player2]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-around text-5xl">
         <span>{p1Wins}</span>
         <span>{p2Wins}</span>
@@ -80,31 +98,52 @@ export default function MatchList(props: MatchListProps) {
         <span>{`(${p1Points})`}</span>
         <span>{`(${p2Points})`}</span>
       </div>
-      <div className="flex flex-col gap-2">
-        <div>
-          {bestMatch && (
-            <div>
-              An Instant Classic:
-              <MatchView m={bestMatch} p1={player1} p2={player2} />
-            </div>
-          )}
-        </div>
-        <div>
-          {worstMatch && (
-            <div>
-              A Dogwalking:{" "}
-              <MatchView m={worstMatch} p1={player1} p2={player2} />
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex flex-col justify-center items-center">
-        <h3>All Matches</h3>
-        <div>
-          {sharedMatches.map((sm) => (
-            <MatchView key={sm.id} m={sm} p1={player1} p2={player2} />
-          ))}
-        </div>
+      <div className="flex flex-col gap-2 w-full">
+        <CollapsibleMenu
+          items={[
+            {
+              title: "All Matches",
+              node: (
+                <div>
+                  {sharedMatches.map((sm) => (
+                    <MatchView key={sm.id} m={sm} p1={player1} p2={player2} />
+                  ))}
+                </div>
+              ),
+            },
+            {
+              title: "Extras",
+              node: (
+                <>
+                  <div>
+                    {bestMatch && (
+                      <div>
+                        An Instant Classic:
+                        <MatchView m={bestMatch} p1={player1} p2={player2} />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    {worstMatch && (
+                      <div>
+                        A Dogwalking:{" "}
+                        <MatchView m={worstMatch} p1={player1} p2={player2} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-around">
+                    <div>{player1.name + " best streak: " + p1BestStreak}</div>
+                    <div>
+                      <div>
+                        {player2.name + " best streak: " + p2BestStreak}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ),
+            },
+          ]}
+        ></CollapsibleMenu>
       </div>
     </div>
   );

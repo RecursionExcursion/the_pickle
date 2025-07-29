@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { actualHamburgerIco } from "../svg/svg";
-
 import Link from "next/link";
 import { RouteLink } from "../routes/routes";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 type BurgerMenuProps = {
   links: RouteLink[];
@@ -19,8 +18,8 @@ export default function BurgerMenu(props: BurgerMenuProps) {
 
   return (
     <div>
-      <button className="scale-250 p-4" onClick={() => setOpen(!open)}>
-        {actualHamburgerIco}
+      <button className="p-4 rounded-sm" onClick={() => setOpen(!open)}>
+        <Image src={"hamburgerIcon.svg"} alt={""} width={60} height={60}/>
       </button>
       {open && (
         <div

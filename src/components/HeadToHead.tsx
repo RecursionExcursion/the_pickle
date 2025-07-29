@@ -43,7 +43,7 @@ export default function HeadToHead() {
         Add Match
       </LinkButton>
       <h2>Head To Head</h2>
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-full justify-center">
         <PlayerSelect
           playerName={player1Id}
           setPlayerName={setPlayer1Id}
@@ -56,7 +56,7 @@ export default function HeadToHead() {
           playerList={players}
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 w-full justify-center">
         {player1 && player2 && (
           <MatchList player1={player1} player2={player2} matches={matches} />
         )}

@@ -1,98 +1,114 @@
 import { Match, Player, Score } from "../../../service/types";
-import { createToken } from "./jwtAuth";
-import { MongoClientManager } from "./MongoConnection";
+import { createToken } from "./jwt-auth";
 import { v4 as uuidv4 } from "uuid";
+import { PG_Pickle } from "./pickle-pg-driver";
+import { brotliCompressor } from "./compresion-service";
 
-const COLLECTION_NAME = "data";
+const COLLECTION_KEY = "pickle";
+const COLLECTION_APP_NAME = "ThePickle";
 
-const DB_NAME = process.env.DB_NAME_PICKLE;
 const PICKLE_USERNAME = process.env.PICKLE_USERNAME;
 const PICKLE_PASSWORD = process.env.PICKLE_PASSWORD;
 
-assertIsString(DB_NAME);
 assertIsString(PICKLE_USERNAME);
 assertIsString(PICKLE_PASSWORD);
 
 type DB_DATA_SHAPE = {
   id: string;
+  key: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  data: string;
+};
+
+type APP_DATA_SHAPE = {
+  id: string;
   players: Player[];
   matches: Match[];
 };
 
-type PickleHttpResponse<T> = {
-  status: number;
+export interface Pickle_DB {
+  get(appKey: string): Promise<DB_DATA_SHAPE>;
+  save(data: { key: string; name: string; data: string }): Promise<boolean>;
+}
+
+class PickleResponse<T> {
+  status: number = 200;
   message?: string;
-  data?: T;
-};
+  payload: T;
+  constructor(props: { status?: number; payload?: T; message?: string }) {
+    if (props.status) this.status = props.status;
+    if (props.message) this.message = props.message;
+    this.payload = props.payload ?? ({} as T);
+  }
+  ok = () => this.status >= 200 && this.status <= 299;
+  set(status?: number, payload?: T, message?: string) {
+    if (status) this.status = status;
+    if (message) this.message = message;
+    if (payload) this.payload = payload;
+  }
+}
 
 /* To be used on the server only  */
 class ThePickle {
-  dbClient = MongoClientManager(DB_NAME as string);
+  db: Pickle_DB = new PG_Pickle(process.env.DB_URL);
 
   async #getAppData() {
-    const res = await this.dbClient.transact(async (session) =>
-      (await this.dbClient.db())
-        .collection(COLLECTION_NAME)
-        .findOne({ session })
-    );
-
-    if (!res) {
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...data } = res;
-    return data as DB_DATA_SHAPE;
+    const respg = await this.db.get(COLLECTION_KEY);
+    const data = JSON.parse(
+      brotliCompressor.decompress(respg.data)
+    ) as APP_DATA_SHAPE;
+    return data as APP_DATA_SHAPE;
   }
 
-  async #updateAppData(data: DB_DATA_SHAPE) {
-    const res = await this.dbClient.transact(async (session) =>
-      (await this.dbClient.db())
-        .collection(COLLECTION_NAME)
-        .updateOne({ id: data.id }, { $set: data }, { session })
-    );
-
-    const success = !!res && res.acknowledged && res.modifiedCount === 1;
-    return {
-      status: success ? 200 : 404,
-      data: success,
-    } as PickleHttpResponse<boolean>;
+  async #updateAppData(data: APP_DATA_SHAPE) {
+    const pgSuccess = await this.db.save({
+      key: COLLECTION_KEY,
+      name: COLLECTION_APP_NAME,
+      data: brotliCompressor.compress(JSON.stringify(data)),
+    });
+    return new PickleResponse<void>({
+      status: pgSuccess ? 200 : 404,
+    });
   }
 
   login = {
     login: async (un: string, pw: string) => {
-      const res = { status: 401 } as PickleHttpResponse<string>;
       if (un === PICKLE_USERNAME && pw === PICKLE_PASSWORD) {
-        res.status = 200;
-        res.data = createToken({ sub: un });
+        return new PickleResponse<string>({
+          status: 200,
+          payload: createToken({ sub: un }),
+        });
       }
-      return res;
+      return new PickleResponse<string>({ status: 401 });
     },
   };
 
   player = {
     get: async () => {
-      return {
+      return new PickleResponse<Player[]>({
         status: 200,
-        data: (await this.#getAppData())?.players ?? [],
-      } as PickleHttpResponse<Player[]>;
+        payload: (await this.#getAppData())?.players ?? [],
+      });
     },
     create: async () => {},
   };
 
   matches = {
     get: async () => {
-      return {
+      return new PickleResponse<Match[]>({
         status: 200,
-        data: (await this.#getAppData())?.matches ?? [],
-      } as PickleHttpResponse<Match[]>;
+        payload: (await this.#getAppData())?.matches ?? [],
+      });
     },
     create: async (
       date: number,
       score: Score[]
-    ): Promise<PickleHttpResponse<boolean>> => {
-      const res = {
+    ): Promise<PickleResponse<void>> => {
+      const res = new PickleResponse<void>({
         status: 400,
-      } as PickleHttpResponse<boolean>;
+      });
 
       //validate params
       if (score.length !== 2) {
@@ -126,21 +142,18 @@ class ThePickle {
         score,
       };
 
-      console.log({ p1, p2 });
-
       p1.matches.push(newMatch.id);
       p2.matches.push(newMatch.id);
       appData.matches.push(newMatch);
 
       this.#updateAppData(appData);
-      res.data = true;
-      res.status = 200;
+      res.set(200);
       return res;
     },
     delete: async (matchId: string) => {
-      const res = {
+      const res = new PickleResponse<void>({
         status: 404,
-      } as PickleHttpResponse<void>;
+      });
 
       const appData = await this.#getAppData();
       if (!appData) {
@@ -166,7 +179,7 @@ class ThePickle {
       }
 
       this.#updateAppData(appData);
-      res.status = 200;
+      res.set(200);
       return res;
     },
   };
