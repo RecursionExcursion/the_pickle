@@ -1,29 +1,34 @@
 export class ApiCache<T> {
   data: T | null;
-  date: number = 0;
-  exp: number = 24 * 60 * 60 * 1000; //one day is default
+  timestamp: number = 0;
+  ttl: number = 24 * 60 * 60 * 1000; //one day is default
 
-  constructor(data: T, date?: number, exp?: number) {
+  constructor(data: T, ttl?: number, timestamp?: number) {
     this.data = data;
-    if (date) {
-      this.date = date;
-    }
-    if (exp) {
-      this.exp = exp;
-    }
+    if (ttl) this.ttl = ttl;
+    if (timestamp) this.timestamp = timestamp;
   }
 
   /* Sets cache, uses now if date is undefined */
   set(data: T, date?: number) {
     this.data = data;
-    this.date = date ?? Date.now();
+    this.timestamp = date ?? Date.now();
+  }
+
+  get() {
+    return this.isValid() ? this.data : undefined
   }
 
   isValid() {
-    return this.date + this.exp > Date.now();
+    return this.data && this.#getExp() > Date.now();
+  }
+
+  #getExp() {
+    return this.timestamp + this.ttl;
   }
 
   invalidate() {
-    this.date = 0;
+    this.data = null;
+    this.timestamp = 0;
   }
 }

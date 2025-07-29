@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { deleteSessionCookie, getSessionCookie } from "./cookieAuth";
-import { verifyToken } from "./jwtAuth";
+import { deleteSessionCookie, getSessionCookie } from "./cookie-auth";
+import { verifyToken } from "./jwt-auth";
 
 type Handler = (req: NextRequest) => Promise<NextResponse>;
 type MW = (h: Handler) => Handler;

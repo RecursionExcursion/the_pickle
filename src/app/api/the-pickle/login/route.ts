@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import thePickle from "../the_pickle";
+import thePickle from "../the-pickle";
 import { authChain, mw_pipe } from "../mw";
-import { deleteSessionCookie, setSessionCookie } from "../cookieAuth";
+import { deleteSessionCookie, setSessionCookie } from "../cookie-auth";
 
 export const POST = mw_pipe()(async (r: NextRequest) => {
   const pl = (await r.json()) as {

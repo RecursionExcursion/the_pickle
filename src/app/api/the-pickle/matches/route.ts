@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import thePickle from "../the_pickle";
+import thePickle from "../the-pickle";
 import { authChain, mw_pipe } from "../mw";
 import { Match, Score } from "../../../../service/types";
 import { ApiCache } from "../cache";
@@ -22,7 +22,7 @@ export const POST = mw_pipe(...authChain)(async (r: NextRequest) => {
 
 export const GET = mw_pipe(...authChain)(async () => {
   if (matchCache.isValid()) {
-    return NextResponse.json(matchCache.data, { status: 200 });
+    return NextResponse.json(matchCache.get(), { status: 200 });
   }
 
   const res = await thePickle.matches.get();

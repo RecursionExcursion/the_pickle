@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "./app/api/the-pickle/cookieAuth";
+import { getSessionCookie } from "./app/api/the-pickle/cookie-auth";
 
 /* Defines which routes run the middleware */
 export const config = {

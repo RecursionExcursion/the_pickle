@@ -1,9 +1,11 @@
 import { Match, Player, Score } from "../../../service/types";
-import { createToken } from "./jwtAuth";
-import { MongoClientManager } from "./MongoConnection";
+import { createToken } from "./jwt-auth";
 import { v4 as uuidv4 } from "uuid";
+import { PG_Pickle } from "./pickle-pg-driver";
+import { brotliCompressor } from "./compresion-service";
 
-const COLLECTION_NAME = "data";
+const COLLECTION_KEY = "pickle";
+const COLLECTION_APP_NAME = "ThePickle"
 
 const DB_NAME = process.env.DB_NAME_PICKLE;
 const PICKLE_USERNAME = process.env.PICKLE_USERNAME;
@@ -15,9 +17,23 @@ assertIsString(PICKLE_PASSWORD);
 
 type DB_DATA_SHAPE = {
   id: string;
+  key: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  data: string;
+};
+
+type APP_DATA_SHAPE = {
+  id: string;
   players: Player[];
   matches: Match[];
 };
+
+export interface Pickle_DB {
+  get(appKey: string): Promise<DB_DATA_SHAPE>;
+  save(data: { key: string; name: string; data: string }): Promise<boolean>;
+}
 
 class PickleResponse<T> {
   status: number = 200;
@@ -38,33 +54,22 @@ class PickleResponse<T> {
 
 /* To be used on the server only  */
 class ThePickle {
-  dbClient = MongoClientManager(DB_NAME as string);
+  db: Pickle_DB = new PG_Pickle(process.env.DB_URL);
 
   async #getAppData() {
-    const res = await this.dbClient.transact(async (session) =>
-      (await this.dbClient.db())
-        .collection(COLLECTION_NAME)
-        .findOne({ session })
-    );
-
-    if (!res) {
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...data } = res;
-    return data as DB_DATA_SHAPE;
+    const respg = await this.db.get(COLLECTION_KEY);
+    const data = JSON.parse(brotliCompressor.decompress(respg.data)) as APP_DATA_SHAPE
+    return data as APP_DATA_SHAPE;
   }
 
-  async #updateAppData(data: DB_DATA_SHAPE) {
-    const res = await this.dbClient.transact(async (session) =>
-      (await this.dbClient.db())
-        .collection(COLLECTION_NAME)
-        .updateOne({ id: data.id }, { $set: data }, { session })
-    );
-
-    const success = !!res && res.acknowledged && res.modifiedCount === 1;
+  async #updateAppData(data: APP_DATA_SHAPE) {
+    const pgSuccess = await this.db.save({
+      key: COLLECTION_KEY,
+      name: COLLECTION_APP_NAME,
+      data: brotliCompressor.compress(JSON.stringify(data)),
+    });
     return new PickleResponse<void>({
-      status: success ? 200 : 404,
+      status: pgSuccess ? 200 : 404,
     });
   }
 
