@@ -104,7 +104,7 @@ export default function MatchList(props: MatchListProps) {
             {
               title: "All Matches",
               node: (
-                <div>
+                <div className="flex-1 overflow-y-scroll h-70 border border-white">
                   {sharedMatches.map((sm) => (
                     <MatchView key={sm.id} m={sm} p1={player1} p2={player2} />
                   ))}
