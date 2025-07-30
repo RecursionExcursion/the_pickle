@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { usePickleContext } from "../context/PickleContext";
-import { removeMatch } from "../service/pickleService";
+import { removeMatch, updateMatch } from "../service/pickleService";
 import { Match, Player } from "../service/types";
 import { pen, trashCanIco } from "../svg/svg";
 import { ChangeEvent, useState } from "react";
@@ -13,6 +13,7 @@ export default function MatchManager() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [editingMatch, setEditingMatch] = useState<{
     id: string;
+    date: number;
     score1: number;
     score2: number;
   }>();
@@ -38,6 +39,7 @@ export default function MatchManager() {
       setSelectedIndex(i);
       setEditingMatch({
         id: m.id,
+        date: m.date,
         score1: m.score[0].points,
         score2: m.score[1].points,
       });
@@ -61,8 +63,32 @@ export default function MatchManager() {
     });
   }
 
-  function saveMatch(){
-    
+  async function saveMatch() {
+    if (!editingMatch) return;
+    const changingMatch = matches.find((m) => m.id === editingMatch?.id);
+
+    if (!changingMatch) return;
+
+    const res = await updateMatch({
+      id: changingMatch.id,
+      date: editingMatch.date,
+      score: [
+        {
+          id: changingMatch.score[0].id,
+          points: editingMatch.score1,
+        },
+        {
+          id: changingMatch.score[1].id,
+          points: editingMatch.score2,
+        },
+      ],
+    });
+
+    if (res.ok) {
+      await updateContent();
+      setSelectedIndex(-1);
+      setEditingMatch(undefined);
+    }
   }
 
   return (
@@ -104,7 +130,7 @@ export default function MatchManager() {
                       value={editingMatch?.score2 ?? 0}
                     ></input>
                   ) : (
-                    <span>{a.points}</span>
+                    <span>{b.points}</span>
                   )}
                 </span>
               </span>

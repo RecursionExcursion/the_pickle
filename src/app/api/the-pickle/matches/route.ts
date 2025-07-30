@@ -34,6 +34,36 @@ export const GET = mw_pipe(...authChain)(async () => {
   return NextResponse.json(res.payload, { status: res.status });
 });
 
+export const PUT = mw_pipe(...authChain)(async (r: NextRequest) => {
+  const match = (await r.json()) as Match;
+
+  console.log({ match });
+  console.log(match.score[0]);
+  console.log(match.score[1]);
+
+  //validate request body
+  if (
+    !match.id ||
+    !match.date ||
+    !match.score ||
+    match.score.length !== 2 ||
+    !match.score[0].id ||
+    match.score[0].points === undefined ||
+    !match.score[1].id ||
+    match.score[1].points === undefined
+  ) {
+    return new NextResponse(null, { status: 400 });
+  }
+
+  const res = await thePickle.matches.update(match);
+
+  if (res.ok()) {
+    matchCache.invalidate();
+  }
+
+  return NextResponse.json(null, { status: res.status });
+});
+
 export const DELETE = mw_pipe(...authChain)(async (r: NextRequest) => {
   const { id } = (await r.json()) as {
     id: string;

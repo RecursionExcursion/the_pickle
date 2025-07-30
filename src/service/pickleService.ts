@@ -1,4 +1,4 @@
-import { Score } from "./types";
+import { Match, Score } from "./types";
 
 // type ServiceResponse<T> = {
 //   status: number;
@@ -52,6 +52,16 @@ export async function addMatch(score: Score[]) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+  });
+}
+
+export async function updateMatch(match: Match) {
+  return await fetch(matchesRoute, {
+    method: "PUT",
+    body: JSON.stringify(match),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 }
 
