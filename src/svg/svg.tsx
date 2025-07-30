@@ -151,7 +151,7 @@ export const courtSvg = (
       y1="22"
       x2="20"
       y2="22"
-      stroke="white"
+      stroke="gray"
       strokeWidth={strokeWidth1}
     />
     {/*  kitchen */}

@@ -9,7 +9,7 @@ export default function PickleBallAnimation() {
 
   useEffect(() => {
     startAnimation();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function startAnimation() {
@@ -23,16 +23,30 @@ export default function PickleBallAnimation() {
 
     //TODO calc top of ball and adjuct y coord
     //Maybe consider left side of ball too
+    //Makes first hit go into opp diag square
 
     const courtRect = court.getBoundingClientRect();
     const ballRect = ball.getBoundingClientRect();
 
     const landingSpotX = courtRect.width * Math.random();
-    let r = Math.random() / 2;
-    if (ballRect.y < courtRect.y + courtRect.height / 2) r += 0.5;
-    const landingSpotY = courtRect.height * r;
 
-    ball.style.transition = "transform 1s ease";
+    const landingSpotY = (() => {
+      let r = Math.random() / 2;
+      //hitting from top half of the court
+      if (ballRect.y < courtRect.y + courtRect.height / 2) {
+        r += 0.5;
+        //adjust for ball size
+        r = Math.min(r, 0.95);
+        return courtRect.height * r;
+      } else {
+        //hitting from bottom half of the court
+        //adjust for ball size
+        r = Math.min(r, 0.45);
+        return courtRect.height * r;
+      }
+    })();
+
+    ball.style.transition = "transform 1s ease-out";
     ball.style.transform = `translate(${landingSpotX.toFixed()}px, ${landingSpotY.toFixed()}px)`;
   };
 
