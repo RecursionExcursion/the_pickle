@@ -38,18 +38,17 @@ export default function HeadToHead() {
   }, [player1Id, player2Id, players]);
 
   return (
-    <div className="flex flex-col gap-3 p-6 h-full">
+    <div className="flex flex-col gap-4 px-6 flex-1 overflow-hidden">
       <LinkButton href={`/addMatch?p1=${player1Id}&p2=${player2Id}`}>
         Add Match
       </LinkButton>
-      <h2 className="text-center">Head To Head</h2>
-      <div className="flex gap-2 w-full justify-center">
+      <div className="flex gap-1 w-full justify-center items-center">
         <PlayerSelect
           playerName={player1Id}
           setPlayerName={setPlayer1Id}
           playerList={players}
         />
-        <span>vs</span>
+        <span className="text-lg">vs</span>
         <PlayerSelect
           playerName={player2Id}
           setPlayerName={setPlayer2Id}

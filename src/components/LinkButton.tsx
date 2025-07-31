@@ -4,14 +4,13 @@ import { ReactNode } from "react";
 type LinkButtonProps = {
   children: ReactNode;
   href: string;
+  classStyle?: string;
 };
 
 export default function LinkButton(props: LinkButtonProps) {
+  const { classStyle = "clickable" } = props;
   return (
-    <Link
-      className="text-center border border-white w-full"
-      href={props.href}
-    >
+    <Link className={classStyle} href={props.href}>
       {props.children}
     </Link>
   );

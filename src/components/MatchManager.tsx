@@ -6,6 +6,7 @@ import { removeMatch, updateMatch } from "../service/pickleService";
 import { Match, Player } from "../service/types";
 import { pen, trashCanIco } from "../svg/svg";
 import { ChangeEvent, useState } from "react";
+import Button from "./Button";
 
 export default function MatchManager() {
   const { matches, players, updateContent } = usePickleContext();
@@ -150,7 +151,7 @@ export default function MatchManager() {
           );
         })}
       </div>
-      {editingMatch && <button onClick={saveMatch}>Save</button>}
+      {editingMatch && <Button onClick={saveMatch}>Save</Button>}
     </div>
   );
 }

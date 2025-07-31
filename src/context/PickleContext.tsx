@@ -64,14 +64,10 @@ export const PickleProvider = (props: PickleProviderProps) => {
         updateContent,
       }}
     >
-      {/* <div className="grid grid-rows-[10%_1fr] h-screen"> */}
-      <div className="flex flex-col gap-5 h-screen">
+      <div className="flex flex-col gap-5 h-screen text-white">
         <PickleBallAnimation /> {/*absolutly pos  */}
         <BurgerMenu links={routeLinks} />
-        {/* {props.children} */}
-        {/* <div className="flex-1 flex flex-col overflow-hidden"> */}
-          {props.children}
-        {/* </div> */}
+        {props.children}
       </div>
     </PickleContext.Provider>
   );
