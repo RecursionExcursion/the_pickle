@@ -76,11 +76,11 @@ export default function MatchManager() {
       score: [
         {
           id: changingMatch.score[0].id,
-          points: editingMatch.score1,
+          points: Number(editingMatch.score1),
         },
         {
           id: changingMatch.score[1].id,
-          points: editingMatch.score2,
+          points: Number(editingMatch.score2),
         },
       ],
     });
