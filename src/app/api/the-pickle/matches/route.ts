@@ -69,8 +69,6 @@ export const DELETE = mw_pipe(...authChain)(async (r: NextRequest) => {
 });
 
 function matchValidation(m: Match) {
-  console.log({ m });
-
   if (!m) return false;
 
   const validId = typeof m.id === "string";

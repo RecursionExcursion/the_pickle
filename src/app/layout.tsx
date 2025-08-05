@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${dancingScript.variable} antialiased`}>
+      <body className={`${dancingScript.variable} antialiased bg-black`}>
         {children}
       </body>
     </html>
