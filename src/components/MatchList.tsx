@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Match, Player } from "../service/types";
 import CollapsibleMenu from "./CollapsibleMenu";
 
@@ -13,35 +13,31 @@ type MatchListProps = {
 export default function MatchList(props: MatchListProps) {
   const { player1, player2, matches } = props;
 
-  const [p1Wins, setP1Wins] = useState(0);
-  const [p2Wins, setP2Wins] = useState(0);
-  const [p1BestStreak, setP1BestStreak] = useState(0);
-  const [p1Points, setP1Points] = useState(0);
-  const [p2Points, setP2Points] = useState(0);
-  const [p2BestStreak, setP2BestStreak] = useState(0);
+  const stats = useMemo(() => {
+    type PStats = {
+      player: Player;
+      wins: number;
+      points: number;
+      streak: Streak;
+    };
 
-  const [bestMatch, setBestMatch] = useState<Match>();
-  const [worstMatch, setWorstMatch] = useState<Match>();
-  const [sharedMatches, setSharedMatches] = useState<Match[]>([]);
+    const p1Stats: PStats = {
+      player: player1,
+      wins: 0,
+      points: 0,
+      streak: new Streak(player1.id),
+    };
+    const p2Stats: PStats = {
+      player: player2,
+      wins: 0,
+      points: 0,
+      streak: new Streak(player2.id),
+    };
 
-  useEffect(() => {
-    //reset state
-    setBestMatch(undefined);
-    setWorstMatch(undefined);
-    setP1Wins(0);
-    setP2Wins(0);
-    setP1Points(0);
-    setP2Points(0);
-    setP1BestStreak(0);
-    setP2BestStreak(0);
-
-    let bestPointDiff = Number.MAX_SAFE_INTEGER;
+    let bestMatch: Match | undefined;
+    let worstMatch: Match | undefined;
+    let bestPointsScored = -1;
     let worstPointDiff = Number.MIN_SAFE_INTEGER;
-
-    let p1Best = 0;
-    let p1CurrStreak = 0;
-    let p2Best = 0;
-    let p2CurrStreak = 0;
 
     const releventMatches = matches.filter((m) => {
       const [a, b] = m.score;
@@ -57,46 +53,50 @@ export default function MatchList(props: MatchListProps) {
       const p2Points = a.id === player2.id ? a.points : b.points;
 
       if (p1Points > p2Points) {
-        setP1Wins((prev) => prev + 1);
-        p1CurrStreak++;
-        p1Best = Math.max(p1Best, p1CurrStreak);
-        p2CurrStreak = 0;
+        p1Stats.wins++;
+        p1Stats.streak.inc();
+        p2Stats.streak.reset();
       } else {
-        setP2Wins((prev) => prev + 1);
-        p2CurrStreak++;
-        p2Best = Math.max(p2Best, p2CurrStreak);
-        p1CurrStreak = 0;
+        p2Stats.wins++;
+        p2Stats.streak.inc();
+        p1Stats.streak.reset();
       }
+      p1Stats.points += p1Points;
+      p2Stats.points += p2Points;
 
-      setP1Points((prev) => prev + p1Points);
-      setP2Points((prev) => prev + p2Points);
-
+      const accPoints = p1Points + p2Points;
       const scoreDiff = Math.abs(a.points - b.points);
-      if (scoreDiff < bestPointDiff) {
-        bestPointDiff = scoreDiff;
-        setBestMatch(m);
+      if (accPoints > bestPointsScored) {
+        bestPointsScored = accPoints;
+        bestMatch = m;
       }
 
       if (scoreDiff > worstPointDiff) {
         worstPointDiff = scoreDiff;
-        setWorstMatch(m);
+        worstMatch = m;
       }
     });
 
-    setSharedMatches(releventMatches.sort((a, b) => b.date - a.date));
-    setP1BestStreak(p1Best);
-    setP2BestStreak(p2Best);
-  }, [matches, player1, player2]);
+    const sharedMatches = releventMatches.sort((a, b) => b.date - a.date);
+
+    return {
+      p1Stats,
+      p2Stats,
+      sharedMatches,
+      bestMatch,
+      worstMatch,
+    };
+  }, [player1, player2, matches]);
 
   return (
     <div className="flex flex-col gap-5 w-full">
       <div className="flex justify-around text-5xl">
-        <span>{p1Wins}</span>
-        <span>{p2Wins}</span>
+        <span>{stats.p1Stats.wins}</span>
+        <span>{stats.p2Stats.wins}</span>
       </div>
       <div className="flex justify-around text-5xl">
-        <span>{`(${p1Points})`}</span>
-        <span>{`(${p2Points})`}</span>
+        <span>{`(${stats.p1Stats.points})`}</span>
+        <span>{`(${stats.p2Stats.points})`}</span>
       </div>
       <div className="flex flex-col gap-2 w-full">
         <CollapsibleMenu
@@ -104,8 +104,8 @@ export default function MatchList(props: MatchListProps) {
             {
               title: "All Matches",
               node: (
-                <div>
-                  {sharedMatches.map((sm) => (
+                <div className="flex-1 overflow-y-scroll h-70 border border-white">
+                  {stats.sharedMatches.map((sm) => (
                     <MatchView key={sm.id} m={sm} p1={player1} p2={player2} />
                   ))}
                 </div>
@@ -114,32 +114,54 @@ export default function MatchList(props: MatchListProps) {
             {
               title: "Extras",
               node: (
-                <>
+                <div>
                   <div>
-                    {bestMatch && (
+                    {stats.bestMatch && (
                       <div>
-                        An Instant Classic:
-                        <MatchView m={bestMatch} p1={player1} p2={player2} />
+                        Instant Classic:
+                        <MatchView
+                          m={stats.bestMatch}
+                          p1={player1}
+                          p2={player2}
+                        />
                       </div>
                     )}
                   </div>
                   <div>
-                    {worstMatch && (
+                    {stats.worstMatch && (
                       <div>
-                        A Dogwalking:{" "}
-                        <MatchView m={worstMatch} p1={player1} p2={player2} />
+                        Ass Beating:
+                        <MatchView
+                          m={stats.worstMatch}
+                          p1={player1}
+                          p2={player2}
+                        />
                       </div>
                     )}
                   </div>
-                  <div className="flex justify-around">
-                    <div>{player1.name + " best streak: " + p1BestStreak}</div>
+                  Streaks:
+                  <div className="border border-white p-2 text-nowrap text-center">
                     <div>
-                      <div>
-                        {player2.name + " best streak: " + p2BestStreak}
-                      </div>
+                      {`Current streak: ${
+                        stats.p1Stats.streak.current
+                          ? stats.p1Stats.player.name
+                          : stats.p2Stats.player.name
+                      }: ${
+                        stats.p1Stats.streak.current
+                          ? stats.p1Stats.streak.current
+                          : stats.p2Stats.streak.current
+                      }`}
                     </div>
                   </div>
-                </>
+                  <div className="border border-white p-2 text-nowrap text-center">
+                    <span className="font-bold">{player1.name}</span>
+                    <span>{" best streak: " + stats.p1Stats.streak.best}</span>
+                  </div>
+                  <div className="border border-white p-2 text-nowrap text-center">
+                    <span className="font-bold">{player2.name}</span>
+                    <span>{" best streak: " + stats.p2Stats.streak.best}</span>
+                  </div>
+                </div>
               ),
             },
           ]}
@@ -201,5 +223,23 @@ function getPlayerName(pId: string, p1: Player, p2: Player) {
     return p1.name;
   } else if (pId === p2.id) {
     return p2.name;
+  }
+}
+
+class Streak {
+  id: string;
+  current: number = 0;
+  best: number = 0;
+  constructor(id: string) {
+    this.id = id;
+  }
+  reset() {
+    this.current = 0;
+  }
+  inc() {
+    this.current++;
+    if (this.current > this.best) {
+      this.best = this.current;
+    }
   }
 }

@@ -150,6 +150,19 @@ class ThePickle {
       res.set(200);
       return res;
     },
+    update: async (match: Match): Promise<PickleResponse<boolean>> => {
+      const appData = await this.#getAppData();
+      const matchToEdit = appData.matches.find((m) => m.id === match.id);
+
+      if (!matchToEdit) {
+        return new PickleResponse({ status: 404 });
+      }
+
+      matchToEdit.score = match.score;
+
+      this.#updateAppData(appData);
+      return new PickleResponse({ status: 200 });
+    },
     delete: async (matchId: string) => {
       const res = new PickleResponse<void>({
         status: 404,

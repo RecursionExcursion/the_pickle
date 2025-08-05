@@ -12,10 +12,13 @@ type PlayerSelectProps = {
 export function PlayerSelect(props: PlayerSelectProps) {
   const { title, playerName, setPlayerName, playerList } = props;
   return (
-    <div className="flex">
-      {title && <span className="pr-3">{title}</span>}
+    <div className="flex justify-around text-xl items-center text-[var(--text-color)]">
+      <span className="text-md font-medium ">
+        {title}
+      </span>
       <select
-        className="bg-white text-black px-2 py-1"
+        name="PlayerSelect"
+        className="mt-0.5 w-40 h-15 rounded border-gray-300 shadow-sm dark:border-gray-800 bg-[var(--color-secondary)] dark:text-white text-center"
         value={playerName}
         onChange={(e) => setPlayerName(e.target.value)}
       >

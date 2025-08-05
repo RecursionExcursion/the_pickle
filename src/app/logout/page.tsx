@@ -13,6 +13,6 @@ export default function LogoutPage() {
   }, [router]);
 
   return (
-    <p className="h-screen flex justify-center items-center">Logging out...</p>
+    <p className="h-screen flex justify-center items-center bg-black">Logging out...</p>
   );
 }

@@ -8,6 +8,8 @@ export default function HomePageView() {
   const [pointsScored, setPointsScored] = useState(0);
 
   useEffect(() => {
+    console.log({ matches });
+
     const duration = 1500;
     const start = Date.now();
     const totalMatches = matches.length;
@@ -15,6 +17,20 @@ export default function HomePageView() {
       (sum, m) => sum + m.score[0].points + m.score[1].points,
       0
     );
+
+    matches.forEach((m) => {
+      const [p1, p2] = m.score;
+
+      if (typeof p1.points === "string" || typeof p2.points === "string") {
+        console.log({ m });
+      }
+
+      if (p1.points > 20 || p2.points > 20) {
+        console.log({ m });
+      }
+    });
+
+    console.log({ totalPoints });
 
     const animate = () => {
       const elapsed = Date.now() - start;
@@ -46,7 +62,7 @@ export default function HomePageView() {
         </div>
         <div className="flex flex-col text-2xl text-center text-black">
           <span className="text-nowrap">Points Scored</span>
-          <span>{[pointsScored]}</span>
+          <span>{pointsScored}</span>
         </div>
       </div>
     </div>

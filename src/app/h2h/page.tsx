@@ -5,7 +5,7 @@ import { PickleProvider } from "../../context/PickleContext";
 export default function H2HPage() {
   return (
     <PickleProvider>
-      <PageTitle>H2H</PageTitle>
+      <PageTitle>Head to Head</PageTitle>
       <HeadToHead />
     </PickleProvider>
   );

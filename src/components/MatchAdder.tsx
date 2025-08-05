@@ -8,6 +8,7 @@ import { ScoreInput } from "./ScoreInput";
 import { usePickleContext } from "../context/PickleContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import LinkButton from "./LinkButton";
+import Button from "./Button";
 
 export default function MatchAdder() {
   const { players, updateContent } = usePickleContext();
@@ -62,7 +63,7 @@ export default function MatchAdder() {
   };
 
   return (
-    <div className="flex flex-col justify-center gap-5">
+    <div className="flex flex-col justify-center items-center gap-5 w-full">
       <MatchStatsInput
         title="Player 1"
         p={player1}
@@ -79,12 +80,12 @@ export default function MatchAdder() {
         setS={setScore2}
         players={players}
       />
-      <button className="border border-white" onClick={handleSubmit}>
-        Submit
-      </button>
-      <LinkButton href={`/h2h?p1=${player1}&p2=${player2}`}>
-        View H2H
-      </LinkButton>
+      <div className="flex w-[90%] gap-5">
+        <Button onClick={handleSubmit}>Submit</Button>
+        <LinkButton href={`/h2h?p1=${player1}&p2=${player2}`}>
+          View H2H
+        </LinkButton>
+      </div>
     </div>
   );
 }
@@ -101,7 +102,7 @@ type MatchStatsInputProps = {
 function MatchStatsInput(props: MatchStatsInputProps) {
   const { title, p, setP, s, setS, players } = props;
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 w-full">
       <PlayerSelect
         title={title}
         playerName={p}

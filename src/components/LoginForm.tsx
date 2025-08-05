@@ -32,7 +32,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center gap-2">
+    <div className="h-screen flex flex-col justify-center items-center gap-2 bg-black text-white">
       {!processing ? (
         <>
           <div className="flex gap-2">
